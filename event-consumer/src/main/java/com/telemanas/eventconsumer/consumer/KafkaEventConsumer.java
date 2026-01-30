@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventconsumer.model.CallMetric;
 import com.telemanas.eventconsumer.model.Event;
+import com.telemanas.eventconsumer.model.HotCallEvent;
 import com.telemanas.eventconsumer.repository.CallEventHotRepository;
 import com.telemanas.eventconsumer.repository.CallMetricRepository;
 import com.telemanas.eventconsumer.repository.EventRepository;
+
 
 @Service
 public class KafkaEventConsumer {
@@ -38,7 +40,9 @@ public class KafkaEventConsumer {
 
         // Save raw event
         eventRepository.save(event);
-        hotRepo.save(event);
+
+        HotCallEvent hot = HotCallEvent.from(event);
+        hotRepo.save(hot);
 
         // Existing metrics logic
         String state = event.getState();
