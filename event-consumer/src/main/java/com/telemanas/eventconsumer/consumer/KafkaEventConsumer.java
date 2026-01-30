@@ -7,54 +7,60 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventconsumer.model.CallMetric;
 import com.telemanas.eventconsumer.model.Event;
+import com.telemanas.eventconsumer.repository.CallEventHotRepository;
 import com.telemanas.eventconsumer.repository.CallMetricRepository;
 import com.telemanas.eventconsumer.repository.EventRepository;
 
 @Service
 public class KafkaEventConsumer {
 
+    // repositories
     private final CallMetricRepository repository;
     private final EventRepository eventRepository;
+    private final CallEventHotRepository hotRepo;
 
-
-   public KafkaEventConsumer(CallMetricRepository repository,
-                          EventRepository eventRepository) {
+    // constructor
+    public KafkaEventConsumer(CallMetricRepository repository,
+                          EventRepository eventRepository,  CallEventHotRepository hotRepo) {
     this.repository = repository;
     this.eventRepository = eventRepository;
-}
-
-@KafkaListener(topics = "call-events", groupId = "telemanas-metrics-group")
-public void consume(Event event) {
-
-    // Ensure timestamp exists
-    if (event.getTimestamp() == null) {
-        event.setTimestamp(Instant.now());
+    this.hotRepo = hotRepo;
     }
 
-    // Save raw event
-    eventRepository.save(event);
+    // consume method
+    @KafkaListener(topics = "call-events", groupId = "telemanas-metrics-group")
+    public void consume(Event event) {
 
-    // Existing metrics logic
-    String state = event.getState();
-    boolean emergency = event.isEmergency();
+        // Ensure timestamp exists
+        if (event.getTimestamp() == null) {
+            event.setTimestamp(Instant.now());
+        }
 
-    CallMetric metric = repository.findByState(state)
-            .orElseGet(() -> {
-                CallMetric m = new CallMetric();
-                m.setState(state);
-                m.setTotalCalls(0);
-                m.setEmergencyCalls(0);
-                return m;
-            });
+        // Save raw event
+        eventRepository.save(event);
+        hotRepo.save(event);
 
-    metric.setTotalCalls(metric.getTotalCalls() + 1);
-    if (emergency) {
-        metric.setEmergencyCalls(metric.getEmergencyCalls() + 1);
+        // Existing metrics logic
+        String state = event.getState();
+        boolean emergency = event.isEmergency();
+
+        CallMetric metric = repository.findByState(state)
+                .orElseGet(() -> {
+                    CallMetric m = new CallMetric();
+                    m.setState(state);
+                    m.setTotalCalls(0);
+                    m.setEmergencyCalls(0);
+                    return m;
+                });
+
+        metric.setTotalCalls(metric.getTotalCalls() + 1);
+        if (emergency) {
+            metric.setEmergencyCalls(metric.getEmergencyCalls() + 1);
+        }
+
+        metric.setLastUpdated(Instant.now());
+        repository.save(metric);
+
+        System.out.println("Saved event + updated metrics for " + state);
     }
-
-    metric.setLastUpdated(Instant.now());
-    repository.save(metric);
-
-    System.out.println("Saved event + updated metrics for " + state);
-}
 }
