@@ -1,0 +1,3 @@
+com/telemanas/eventconsumer/repository/CallEventHotRepository.class
+com/telemanas/eventconsumer/service/HotTableCleanupService.class
+com/telemanas/eventconsumer/model/HotCallEvent.class

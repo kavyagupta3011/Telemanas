@@ -20,14 +20,65 @@ public class EventSimulator {
     private static final String API_URL = "http://localhost:8081/api/events";
     private static final Random random = new Random();
 
-    private static final List<String> STATES = List.of("Karnataka", "Maharashtra", "Delhi");
-    private static final Map<String, List<String>> CITIES = Map.of(
-            "Karnataka", List.of("Bengaluru", "Mysuru"),
-            "Maharashtra", List.of("Mumbai", "Pune"),
-            "Delhi", List.of("New Delhi")
+    private static final List<String> STATES = List.of(
+        "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Goa", "Gujarat", 
+        "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", 
+        "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", 
+        "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
+        "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu", 
+        "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
     );
 
-    private static final List<String> AGE_GROUPS = List.of("<18", "18-30", "31-50", "50+");
+    
+    private static final Map<String, List<String>> CITIES = Map.ofEntries(
+        Map.entry("Andhra Pradesh", List.of("Visakhapatnam", "Vijayawada", "Guntur", "Nellore")),
+        Map.entry("Arunachal Pradesh", List.of("Itanagar", "Tawang", "Pasighat")),
+        Map.entry("Assam", List.of("Guwahati", "Silchar", "Dibrugarh", "Jorhat")),
+        Map.entry("Bihar", List.of("Patna", "Gaya", "Bhagalpur", "Muzaffarpur")),
+        Map.entry("Chhattisgarh", List.of("Raipur", "Bhilai", "Bilaspur", "Korba")),
+        Map.entry("Goa", List.of("Panaji", "Margao", "Vasco da Gama")),
+        Map.entry("Gujarat", List.of("Ahmedabad", "Surat", "Vadodara", "Rajkot")),
+        Map.entry("Haryana", List.of("Gurugram", "Faridabad", "Panipat", "Ambala")),
+        Map.entry("Himachal Pradesh", List.of("Shimla", "Manali", "Dharamshala", "Solan")),
+        Map.entry("Jharkhand", List.of("Ranchi", "Jamshedpur", "Dhanbad", "Bokaro")),
+        Map.entry("Karnataka", List.of("Bengaluru", "Mysuru", "Hubballi", "Mangaluru")),
+        Map.entry("Kerala", List.of("Thiruvananthapuram", "Kochi", "Kozhikode", "Thrissur")),
+        Map.entry("Madhya Pradesh", List.of("Bhopal", "Indore", "Gwalior", "Jabalpur")),
+        Map.entry("Maharashtra", List.of("Mumbai", "Pune", "Nagpur", "Nashik")),
+        Map.entry("Manipur", List.of("Imphal", "Thoubal", "Bishnupur")),
+        Map.entry("Meghalaya", List.of("Shillong", "Tura", "Jowai")),
+        Map.entry("Mizoram", List.of("Aizawl", "Lunglei", "Champhai")),
+        Map.entry("Nagaland", List.of("Kohima", "Dimapur", "Mokokchung")),
+        Map.entry("Odisha", List.of("Bhubaneswar", "Cuttack", "Rourkela", "Puri")),
+        Map.entry("Punjab", List.of("Ludhiana", "Amritsar", "Jalandhar", "Chandigarh")),
+        Map.entry("Rajasthan", List.of("Jaipur", "Jodhpur", "Udaipur", "Kota")),
+        Map.entry("Sikkim", List.of("Gangtok", "Namchi", "Geyzing")),
+        Map.entry("Tamil Nadu", List.of("Chennai", "Coimbatore", "Madurai", "Salem")),
+        Map.entry("Telangana", List.of("Hyderabad", "Warangal", "Nizamabad", "Karimnagar")),
+        Map.entry("Tripura", List.of("Agartala", "Udaipur", "Dharmanagar")),
+        Map.entry("Uttar Pradesh", List.of("Lucknow", "Kanpur", "Ghaziabad", "Agra", "Varanasi")),
+        Map.entry("Uttarakhand", List.of("Dehradun", "Haridwar", "Roorkee", "Nainital")),
+        Map.entry("West Bengal", List.of("Kolkata", "Howrah", "Siliguri", "Durgapur")),
+        Map.entry("Andaman and Nicobar Islands", List.of("Port Blair")),
+        Map.entry("Chandigarh", List.of("Chandigarh")),
+        Map.entry("Dadra and Nagar Haveli and Daman and Diu", List.of("Daman", "Silvassa")),
+        Map.entry("Delhi", List.of("New Delhi", "Dwarka", "Saket")),
+        Map.entry("Jammu and Kashmir", List.of("Srinagar", "Jammu", "Anantnag")),
+        Map.entry("Ladakh", List.of("Leh", "Kargil")),
+        Map.entry("Lakshadweep", List.of("Kavaratti")),
+        Map.entry("Puducherry", List.of("Puducherry", "Karaikal"))
+    );
+
+    private static final List<String> AGE_GROUPS = List.of(
+        "0-12", 
+        "13-17", 
+        "18-24", 
+        "25-34", 
+        "35-44", 
+        "45-59", 
+        "60-74", 
+        "75+"
+    );
     private static final List<String> GENDERS = List.of("M", "F", "O");
 
     private static final Set<String> loggedInUsers = new HashSet<>();
