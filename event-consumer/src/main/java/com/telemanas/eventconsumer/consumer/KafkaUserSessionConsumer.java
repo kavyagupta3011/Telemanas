@@ -18,7 +18,10 @@ public class KafkaUserSessionConsumer {
         this.repository = repository;
     }
 
-    @KafkaListener(topics = "user-session-events", groupId = "session-group")
+        @KafkaListener(
+            topics = "user-session-events",
+            groupId = "session-group",
+            containerFactory = "userSessionKafkaListenerContainerFactory")
     public void consume(UserSessionEvent event) {
 
         String sessionId = event.getSessionId();

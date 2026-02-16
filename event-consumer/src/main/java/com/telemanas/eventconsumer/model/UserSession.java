@@ -2,8 +2,16 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Id;
+
+@Entity
+@Table(name = "user_sessions")
 public class UserSession{
 
+    @Id
     private String sessionId;
     private String userId;
      private String reason;      // only for LOGOUT
