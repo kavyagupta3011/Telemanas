@@ -16,11 +16,9 @@ spring:
         spring.json.value.default.type: com.telemanas.eventconsumer.model.Event
 
 
-        
-
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/metricsdb?options=-c%20TimeZone=Asia/Kolkata
+    url: jdbc:postgresql://127.0.0.1:5433/metricsdb?options=-c%20TimeZone=Asia/Kolkata
     username: grafana
     password: grafana
     driver-class-name: org.postgresql.Driver

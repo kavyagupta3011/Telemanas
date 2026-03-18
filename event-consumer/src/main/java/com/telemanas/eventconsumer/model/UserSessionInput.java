@@ -2,32 +2,24 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+public class UserSessionInput {
 
-@Entity
-@Table(name = "user_sessions")
-public class UserSession{
-
-    @Id
     private String sessionId;
     private String userId;
     private String reason;      // only for LOGOUT
-    private Instant loginTime;
-    private Instant logoutTime;
-
-    
-    public Instant getLoginTime() { return loginTime; }
-    public void setLoginTime(Instant loginTime) { this.loginTime = loginTime; }
-    public Instant getLogoutTime() { return logoutTime; }
-    public void setLogoutTime(Instant logoutTime) { this.logoutTime = logoutTime; }
-
+    private String eventType;   // LOGIN or LOGOUT
+    private Instant timestamp;
+   
     public String getSessionId() { return sessionId; }
     public String getUserId() { return userId; }
+    public String getEventType() { return eventType; }
+    public Instant getTimestamp() { return timestamp; }
     public String getReason() { return reason; }
+
 
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
     public void setUserId(String userId) { this.userId = userId; }
+    public void setEventType(String eventType) { this.eventType = eventType; }
+    public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
     public void setReason(String reason) { this.reason = reason; }
 }

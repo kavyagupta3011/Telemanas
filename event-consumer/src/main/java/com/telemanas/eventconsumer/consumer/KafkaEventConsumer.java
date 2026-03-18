@@ -20,6 +20,7 @@ public class KafkaEventConsumer {
     private final CallMetricRepository repository;
     private final EventRepository eventRepository;
     private final CallEventHotRepository hotRepo;
+  
 
     // constructor
     public KafkaEventConsumer(CallMetricRepository repository,
