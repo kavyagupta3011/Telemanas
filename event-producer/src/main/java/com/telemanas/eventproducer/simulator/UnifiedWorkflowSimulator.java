@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -57,112 +60,124 @@ public class UnifiedWorkflowSimulator implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("Starting INFINITE Live Call Center Simulation...");
+        System.out.println("Starting CONCURRENT Live Call Center Simulation...");
+        List<String> users = List.of("user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11", "user12", "user13", "user14", "user15", "user16", "user17", "user18", "user19", "user20");
 
-        List<String> users = List.of("user1", "user2", "user3");
-        Instant baseTime = Instant.now().minus(24, ChronoUnit.HOURS);
+        // Create a Thread Pool with enough capacity for all your agents
+        ExecutorService executor = Executors.newFixedThreadPool(users.size());
 
-        while (true) {
-            for (String user : users) {
-                
-                // --- 1. SETUP TIMELINES & IDs ---
-                String sessionId = "sess-" + UUID.randomUUID().toString().substring(0, 8);
-                
-                // Randomly pick a valid state from the map
-                List<Integer> campaignKeys = new ArrayList<>(STATE_MAP.keySet());
-                Integer campaignId = campaignKeys.get(random.nextInt(campaignKeys.size()));
-                String stateName = STATE_MAP.get(campaignId); 
+        for (String user : users) {
+            // Submit an infinite loop task for EACH agent to run simultaneously
+            executor.submit(() -> {
+                try {
+                    // Stagger the logins by 0-10 seconds so they don't all hit Kafka at the exact same millisecond
+                    Thread.sleep(ThreadLocalRandom.current().nextInt(10000));
 
-                String crtObjectId = "crt-" + UUID.randomUUID().toString().substring(0, 8);
-                String callId = "call-" + UUID.randomUUID().toString().substring(0, 8);
-                String callLegId = "leg-" + UUID.randomUUID().toString().substring(0, 8);
+                    // Each agent gets their own timeline tracker
+                    Instant baseTime = Instant.now().minus(24, ChronoUnit.HOURS);
 
-                Instant loginTime = baseTime.plus(random.nextInt(60), ChronoUnit.MINUTES);
-                Instant readyStartTime = loginTime.plusSeconds(60); 
-                
-                // Call starts 30 seconds after agent gets ready
-                Instant callOriginateTime = readyStartTime.plusSeconds(30);
-                Instant ringingTimeStart = callOriginateTime.plusSeconds(15); // Spent 15s in IVR
-                Instant connectTime = ringingTimeStart.plusSeconds(5);        // Rung for 5s
-                
-                long talkDurationSeconds = 120 + random.nextInt(300);         // Talked for 2-7 mins
-                Instant disconnectTime = connectTime.plusSeconds(talkDurationSeconds);
-                
-                Instant logoutTime = disconnectTime.plusSeconds(60);
-                baseTime = logoutTime.plus(2, ChronoUnit.HOURS); 
+                    while (true) {
+                        // --- 1. SETUP TIMELINES & IDs ---
+                        String sessionId = "sess-" + UUID.randomUUID().toString().substring(0, 8);
+                        
+                        List<Integer> campaignKeys = new ArrayList<>(STATE_MAP.keySet());
+                        Integer campaignId = campaignKeys.get(ThreadLocalRandom.current().nextInt(campaignKeys.size()));
+                        String stateName = STATE_MAP.get(campaignId); 
 
-                System.out.println("========================================");
-                System.out.println("Starting flow for " + user);
+                        String crtObjectId = "crt-" + UUID.randomUUID().toString().substring(0, 8);
+                        String callId = "call-" + UUID.randomUUID().toString().substring(0, 8);
+                        String callLegId = "leg-" + UUID.randomUUID().toString().substring(0, 8);
 
-                // --- 2. FIRE EVENTS IN CHRONOLOGICAL REAL-TIME ---
+                        Instant loginTime = baseTime.plus(ThreadLocalRandom.current().nextInt(60), ChronoUnit.MINUTES);
+                        Instant readyStartTime = loginTime.plusSeconds(60); 
+                        
+                        Instant callOriginateTime = readyStartTime.plusSeconds(30);
+                        Instant ringingTimeStart = callOriginateTime.plusSeconds(15); 
+                        Instant connectTime = ringingTimeStart.plusSeconds(5);        
+                        
+                        long talkDurationSeconds = 120 + ThreadLocalRandom.current().nextInt(300);         
+                        Instant disconnectTime = connectTime.plusSeconds(talkDurationSeconds);
+                        
+                        Instant logoutTime = disconnectTime.plusSeconds(60);
+                        baseTime = logoutTime.plus(2, ChronoUnit.HOURS); 
 
-                // A. Agent Logs In
-                UserSessionEvent loginEvent = new UserSessionEvent();
-                loginEvent.setSessionId(sessionId);
-                loginEvent.setUserId(user);
-                loginEvent.setEventType("LOGIN");
-                loginEvent.setTimestamp(loginTime);
-                sessionProducer.send(loginEvent);
-                System.out.println(" [AGENT] " + user + " Logged In");
-                Thread.sleep(1000);
+                        // --- 2. FIRE EVENTS IN CHRONOLOGICAL REAL-TIME ---
 
-                // B. Citizen Dials In (IVR)
-                CallEvent ivrEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
-                ivrEvent.setEventType("IVR_ENTERED");
-                ivrEvent.setEventTimestamp(callOriginateTime);
-                callProducer.send(ivrEvent);
-                System.out.println("  [CALL] Citizen from " + stateName + " (Campaign " + campaignId + ") entered IVR...");
-                Thread.sleep(1000);
+                        // A. Agent Logs In
+                        UserSessionEvent loginEvent = new UserSessionEvent();
+                        loginEvent.setSessionId(sessionId);
+                        loginEvent.setUserId(user);
+                        loginEvent.setEventType("LOGIN");
+                        loginEvent.setTimestamp(loginTime);
+                        sessionProducer.send(loginEvent);
+                        System.out.println("[" + user + "] Logged In");
+                        Thread.sleep(1000); // Wait 1 sec
 
-                // C. Call Rings Agent
-                CallEvent ringingEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
-                ringingEvent.setEventType("RINGING");
-                ringingEvent.setEventTimestamp(ringingTimeStart);
-                callProducer.send(ringingEvent);
-                System.out.println(" [CALL] Ringing agent " + user + "...");
-                Thread.sleep(1000);
+                        // B. Citizen Dials In (IVR)
+                        CallEvent ivrEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
+                        ivrEvent.setEventType("IVR_ENTERED");
+                        ivrEvent.setEventTimestamp(callOriginateTime);
+                        callProducer.send(ivrEvent);
+                        System.out.println("[" + user + "] --- Citizen from " + stateName + " entered IVR...");
+                        Thread.sleep(1000); // Wait 1 sec
 
-                // D. Agent Picks Up
-                CallEvent connectEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
-                connectEvent.setEventType("CONNECTED");
-                connectEvent.setEventTimestamp(connectTime);
-                connectEvent.setSystemDisposition("CONNECTED");
-                connectEvent.setCallResult("SUCCESS");
-                callProducer.send(connectEvent);
-                System.out.println(" [CALL] Connected! Talking for " + talkDurationSeconds + " seconds.");
-                Thread.sleep(1500); // Wait a little longer to simulate conversation
+                        // C. Call Rings Agent
+                        CallEvent ringingEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
+                        ringingEvent.setEventType("RINGING");
+                        ringingEvent.setEventTimestamp(ringingTimeStart);
+                        callProducer.send(ringingEvent);
+                        System.out.println("[" + user + "] --- Ringing...");
+                        Thread.sleep(1000); // Wait 1 sec
 
-                // E. Citizen Hangs Up (Complete Event with Metrics)
-                CallEvent disconnectEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
-                disconnectEvent.setEventType("DISCONNECTED");
-                disconnectEvent.setEventTimestamp(disconnectTime);
-                disconnectEvent.setCallEndTime(disconnectTime);
-                disconnectEvent.setSystemDisposition("CALL_HANGUP");
-                disconnectEvent.setHangupCauseDescription("Normal Clearing");
-                disconnectEvent.setHangupOnHold(false);
-                disconnectEvent.setIvrTime(15L);
-                disconnectEvent.setRingingTime(5L);
-                disconnectEvent.setTalkTime(talkDurationSeconds * 1000); // Milliseconds
-                callProducer.send(disconnectEvent);
-                System.out.println(" [CALL] Disconnected.");
-                Thread.sleep(1000);
+                        // D. Agent Picks Up
+                        CallEvent connectEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
+                        connectEvent.setEventType("CONNECTED");
+                        connectEvent.setEventTimestamp(connectTime);
+                        connectEvent.setSystemDisposition("CONNECTED");
+                        connectEvent.setCallResult("SUCCESS");
+                        callProducer.send(connectEvent);
+                        System.out.println("[" + user + "] --- Connected! Talking for " + talkDurationSeconds + " seconds.");
+                        
+                        // We scale down the talk time simulation so you don't actually wait 5 real minutes. 
+                        // It waits 3 seconds in real life, but represents minutes in the database.
+                        Thread.sleep(3000); 
 
-                // F. Agent Logs Out
-                UserSessionEvent logoutEvent = new UserSessionEvent();
-                logoutEvent.setSessionId(sessionId);
-                logoutEvent.setUserId(user);
-                logoutEvent.setEventType("LOGOUT");
-                logoutEvent.setTimestamp(logoutTime);
-                logoutEvent.setReason("End of Shift");
-                sessionProducer.send(logoutEvent);
-                System.out.println(" [AGENT] " + user + " Logged Out");
+                        // E. Citizen Hangs Up
+                        CallEvent disconnectEvent = createBaseCallEvent(crtObjectId, callId, callLegId, campaignId, callOriginateTime);
+                        disconnectEvent.setEventType("DISCONNECTED");
+                        disconnectEvent.setEventTimestamp(disconnectTime);
+                        disconnectEvent.setCallEndTime(disconnectTime);
+                        disconnectEvent.setSystemDisposition("CALL_HANGUP");
+                        disconnectEvent.setHangupCauseDescription("Normal Clearing");
+                        disconnectEvent.setHangupOnHold(false);
+                        disconnectEvent.setIvrTime(15L);
+                        disconnectEvent.setRingingTime(5L);
+                        disconnectEvent.setTalkTime(talkDurationSeconds * 1000); 
+                        callProducer.send(disconnectEvent);
+                        System.out.println("[" + user + "] --- Disconnected.");
+                        Thread.sleep(1000); // Wait 1 sec
 
-                System.out.println("========================================\n");
-                Thread.sleep(3000); // Pause before next user flow
-            }
+                        // F. Agent Logs Out
+                        UserSessionEvent logoutEvent = new UserSessionEvent();
+                        logoutEvent.setSessionId(sessionId);
+                        logoutEvent.setUserId(user);
+                        logoutEvent.setEventType("LOGOUT");
+                        logoutEvent.setTimestamp(logoutTime);
+                        logoutEvent.setReason("End of Shift");
+                        sessionProducer.send(logoutEvent);
+                        System.out.println("[" + user + "] Logged Out\n");
+
+                        // Agent takes a short break before their next "shift" starts
+                        Thread.sleep(4000); 
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Restore interrupted status
+                } catch (Exception e) {
+                    System.err.println("Error in agent thread for " + user + ": " + e.getMessage());
+                }
+            });
         }
     }
-
     // Helper method to keep code clean
     private CallEvent createBaseCallEvent(String crt, String callId, String legId, Integer campaign, Instant originate) {
         CallEvent event = new CallEvent();
