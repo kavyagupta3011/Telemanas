@@ -107,18 +107,21 @@ public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
                 // 2. Delay before Agent goes READY
                 Thread.sleep(ThreadLocalRandom.current().nextInt(2000, 5000));
                 
-                // 🔥 FIRE READY ON EVENT
+                //  FIRE READY ON EVENT
                 AgentActivityEvent activityEvent = new AgentActivityEvent();
                 activityEvent.setSessionId(sessionId);
                 activityEvent.setCampaignId(101); // Default simulation campaign
                 activityEvent.setReadyStartTime(Instant.now());
+                activityEvent.setEventType("AGENT_SET_READY");
+                activityEvent.setBreakEndTime(Instant.now());
+                activityEvent.setSessionId(sessionId);
                 activityProducer.send(activityEvent);
                 System.out.println("🟡 [AGENT] " + user + " is now READY.");
 
                 // 3. Delay before AutoCall turns ON
                 Thread.sleep(ThreadLocalRandom.current().nextInt(2000, 5000));
                 
-                // 🔥 FIRE AUTOCALL ON EVENT
+                //  FIRE AUTOCALL ON EVENT
                 AutoCallEvent autoCallEvent = new AutoCallEvent();
                 autoCallEvent.setId("ac-" + UUID.randomUUID().toString().substring(0, 8));
                 autoCallEvent.setSessionId(sessionId);
@@ -146,8 +149,20 @@ public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
                 autoCallProducer.send(autoCallEvent);
                 System.out.println("📴 [AGENT] " + user + " AutoCall turned OFF.");
 
-                // 🔥 FIRE READY OFF EVENT (Updates the existing DB row)
+                //  FIRE READY OFF EVENT (Updates the existing DB row)
                 activityEvent.setReadyEndTime(endTime.plusSeconds(2));
+                // Create a list of possible activity end/break reasons
+                List<String> breakReasons = List.of(
+                    "Shift Ended", "Shift Ended", "Shift Ended", // Weighted to be most common
+                    "Lunch Break", "Tea Break", "Meeting", 
+                    "Training", "System Issue"
+                );
+                
+                // Pick a random reason from the list
+                String randomBreakReason = breakReasons.get(ThreadLocalRandom.current().nextInt(breakReasons.size()));
+                
+                // Apply it to the event
+                activityEvent.setBreakReason(randomBreakReason);
                 activityProducer.send(activityEvent);
                 System.out.println("🛑 [AGENT] " + user + " is no longer READY.");
 
