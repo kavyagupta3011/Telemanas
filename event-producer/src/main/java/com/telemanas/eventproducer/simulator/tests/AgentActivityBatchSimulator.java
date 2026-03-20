@@ -9,12 +9,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
-import com.telemanas.eventproducer.model.AgentActivityEvent; 
+import com.telemanas.eventproducer.model.AgentActivityEvent;
 import com.telemanas.eventproducer.service.AgentActivityProducerService;
 
-@Component
+//@Component
 public class AgentActivityBatchSimulator implements CommandLineRunner {
 
     private final AgentActivityProducerService producer;

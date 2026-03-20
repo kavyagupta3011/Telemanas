@@ -9,12 +9,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import com.telemanas.eventproducer.model.UserSessionEvent;
 import com.telemanas.eventproducer.service.UserSessionProducerService;
 
-@Component
+//@Component
 public class UserSessionBatchSimulator implements CommandLineRunner {
 
     private final UserSessionProducerService producer;

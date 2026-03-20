@@ -15,6 +15,7 @@ import org.springframework.kafka.support.serializer.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.telemanas.eventconsumer.model.AgentActivityInput;
 import com.telemanas.eventconsumer.model.AutoCallInput;
+import com.telemanas.eventconsumer.model.CallRecordInput;
 import com.telemanas.eventconsumer.model.UserSessionInput; // Added import
 
 @Configuration
@@ -96,6 +97,32 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(agentActivityConsumerFactory);
+        return factory;
+    }
+
+   // 4. Call Record Configuration
+    @Bean
+    public ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory(
+            KafkaProperties kafkaProperties,
+            ObjectMapper objectMapper) {
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+
+        JsonDeserializer<CallRecordInput> valueDeserializer =
+                new JsonDeserializer<>(CallRecordInput.class, objectMapper, false);
+        valueDeserializer.addTrustedPackages("*");
+
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> callKafkaListenerContainerFactory(
+            ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(callRecordConsumerFactory);
         return factory;
     }
 }

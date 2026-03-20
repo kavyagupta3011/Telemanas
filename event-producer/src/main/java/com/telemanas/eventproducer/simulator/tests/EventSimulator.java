@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.telemanas.eventproducer.model.Event;
 
-
+// @Component
 public class EventSimulator {
 
     private static final String API_URL = "http://localhost:8081/api/events";

@@ -8,12 +8,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import com.telemanas.eventproducer.model.AutoCallEvent;
 import com.telemanas.eventproducer.service.AutoCallProducerService;
 
-@Component
+//@Component
 public class AutoCallBatchSimulator implements CommandLineRunner {
 
     private final AutoCallProducerService producer;
