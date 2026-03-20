@@ -1,4 +1,4 @@
-package com.telemanas.eventproducer.simulator;
+package com.telemanas.eventproducer.simulator.tests;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
