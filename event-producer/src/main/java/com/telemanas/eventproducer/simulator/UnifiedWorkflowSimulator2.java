@@ -1,9 +1,11 @@
 package com.telemanas.eventproducer.simulator;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -17,8 +19,12 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import com.telemanas.eventproducer.model.AgentActivityEvent;
+import com.telemanas.eventproducer.model.AutoCallEvent;
 import com.telemanas.eventproducer.model.CallEvent;
 import com.telemanas.eventproducer.model.UserSessionEvent;
+import com.telemanas.eventproducer.service.AgentActivityProducerService;
+import com.telemanas.eventproducer.service.AutoCallProducerService;
 import com.telemanas.eventproducer.service.CallProducerService;
 import com.telemanas.eventproducer.service.UserSessionProducerService;
 
@@ -26,7 +32,10 @@ import com.telemanas.eventproducer.service.UserSessionProducerService;
 public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
 
     private final UserSessionProducerService sessionProducer;
-    private final CallProducerService callProducer;
+    private final AgentActivityProducerService activityProducer;
+    private final AutoCallProducerService autoCallProducer;
+    private final CallProducerService callProducer; 
+    private final Random random = new Random();
 
     // --- REAL-TIME CALL CENTER STATE ---
     // Tracks agents who are logged in right now
@@ -34,24 +43,38 @@ public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
     // The "Hold Queue" - Agents waiting for a call
     private final BlockingQueue<String> availableAgents = new LinkedBlockingQueue<>(); 
 
+    // The Official Tele-MANAS Campaign to State Mapping
     private static final Map<Integer, String> STATE_MAP = Map.ofEntries(
-        Map.entry(3, "Andhra Pradesh"), Map.entry(18, "Rajasthan"), Map.entry(20, "Delhi"),
-        Map.entry(21, "Uttar Pradesh"), Map.entry(22, "Haryana"), Map.entry(35, "Karnataka"),
-        Map.entry(27, "Tamil Nadu"), Map.entry(32, "Maharashtra"), Map.entry(28, "Gujarat")
-        // (You can add the rest of your state map here!)
+        Map.entry(3, "Andhra Pradesh"), Map.entry(10, "Chandigarh"), Map.entry(11, "Chhattisgarh"),
+        Map.entry(12, "Ladakh"), Map.entry(13, "Manipur"), Map.entry(14, "Mizoram"),
+        Map.entry(15, "Odisha"), Map.entry(16, "Pondicherry"), Map.entry(17, "Punjab"),
+        Map.entry(18, "Rajasthan"), Map.entry(19, "Uttarakhand"), Map.entry(20, "Delhi"),
+        Map.entry(21, "Uttar Pradesh"), Map.entry(22, "Haryana"), Map.entry(23, "Telangana"),
+        Map.entry(24, "Assam"), Map.entry(25, "Bihar"), Map.entry(26, "Jharkhand"),
+        Map.entry(27, "Tamil Nadu"), Map.entry(28, "Gujarat"), Map.entry(29, "Dadra & Daman & Diu"),
+        Map.entry(30, "Himachal Pradesh"), Map.entry(31, "Jammu & Kashmir"), Map.entry(32, "Maharashtra"),
+        Map.entry(33, "Kerala"), Map.entry(34, "Lakshadweep"), Map.entry(35, "Karnataka"),
+        Map.entry(36, "Andaman & Nicobar"), Map.entry(37, "Goa"), Map.entry(38, "West Bengal"),
+        Map.entry(39, "Madhya Pradesh"), Map.entry(40, "Sikkim"), Map.entry(41, "Arunachal Pradesh"),
+        Map.entry(42, "Tripura"), Map.entry(43, "Meghalaya"), Map.entry(44, "Nagaland"),
+        Map.entry(47, "AFMS")
     );
 
     public UnifiedWorkflowSimulator2(
-            UserSessionProducerService sessionProducer, 
+            UserSessionProducerService sessionProducer,
+            AgentActivityProducerService activityProducer,
+            AutoCallProducerService autoCallProducer,
             CallProducerService callProducer) {
         this.sessionProducer = sessionProducer;
+        this.activityProducer = activityProducer;
+        this.autoCallProducer = autoCallProducer;
         this.callProducer = callProducer;
     }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Starting TRUE ASYNC Call Center Simulation...");
-        List<String> users = List.of("user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10");
+        List<String> users = List.of("user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11", "user12", "user13", "user14", "user15", "user16", "user17", "user18", "user19", "user20");
 
         ExecutorService agentPool = Executors.newFixedThreadPool(users.size());
         ExecutorService callPool = Executors.newCachedThreadPool();
@@ -79,17 +102,64 @@ public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
                 // 1. Agent Logs In
                 sendSessionEvent(user, sessionId, "LOGIN", null);
                 activeAgents.add(user);
-                availableAgents.put(user); // Agent is now ready to take calls
-                System.out.println("🟢 [AGENT] " + user + " logged in and is AVAILABLE.");
+                System.out.println("🟢 [AGENT] " + user + " logged in.");
 
-                // 2. Agent stays on shift for 1 to 3 minutes
+                // 2. Delay before Agent goes READY
+                Thread.sleep(ThreadLocalRandom.current().nextInt(2000, 5000));
+                
+                // 🔥 FIRE READY ON EVENT
+                AgentActivityEvent activityEvent = new AgentActivityEvent();
+                activityEvent.setSessionId(sessionId);
+                activityEvent.setCampaignId(101); // Default simulation campaign
+                activityEvent.setReadyStartTime(Instant.now());
+                activityProducer.send(activityEvent);
+                System.out.println("🟡 [AGENT] " + user + " is now READY.");
+
+                // 3. Delay before AutoCall turns ON
+                Thread.sleep(ThreadLocalRandom.current().nextInt(2000, 5000));
+                
+                // 🔥 FIRE AUTOCALL ON EVENT
+                AutoCallEvent autoCallEvent = new AutoCallEvent();
+                autoCallEvent.setId("ac-" + UUID.randomUUID().toString().substring(0, 8));
+                autoCallEvent.setSessionId(sessionId);
+                autoCallEvent.setCampaignId(101); 
+                autoCallEvent.setAutoCallStartReason("System Trigger");
+                autoCallEvent.setAutoCallOnStartTime(Instant.now());
+                autoCallProducer.send(autoCallEvent);
+                System.out.println("🔵 [AGENT] " + user + " AutoCall is ON.");
+
+                // ONLY NOW is the agent allowed to pick up calls
+                availableAgents.put(user); 
+
+                // 4. Agent stays on shift for 1 to 3 minutes
                 Thread.sleep(ThreadLocalRandom.current().nextInt(60000, 180000));
 
-                // 3. Agent Shift Ends
+                // 5. Agent Shift Ends - Turn everything OFF
                 activeAgents.remove(user);
                 availableAgents.remove(user); // Pull them out of the queue
-                sendSessionEvent(user, sessionId, "LOGOUT", "End of Shift");
-                System.out.println("🔴 [AGENT] " + user + " logged out.");
+                Instant endTime = Instant.now();
+
+                // 🔥 FIRE AUTOCALL OFF EVENT (Updates the existing DB row)
+                autoCallEvent.setAutoCallOnEndTime(endTime);
+                autoCallEvent.setAutoCallOffEndTime(endTime.plusSeconds(2));
+                autoCallEvent.setEndReason("Batch Completed");
+                autoCallProducer.send(autoCallEvent);
+                System.out.println("📴 [AGENT] " + user + " AutoCall turned OFF.");
+
+                // 🔥 FIRE READY OFF EVENT (Updates the existing DB row)
+                activityEvent.setReadyEndTime(endTime.plusSeconds(2));
+                activityProducer.send(activityEvent);
+                System.out.println("🛑 [AGENT] " + user + " is no longer READY.");
+
+                // 6. Agent Logs Out
+                List<String> reasons = List.of(
+                    "End of Shift", "End of Shift", "End of Shift", 
+                    "Lunch Break", "Tea Break", "Technical Issue"
+                );
+                String randomReason = reasons.get(ThreadLocalRandom.current().nextInt(reasons.size()));
+
+                sendSessionEvent(user, sessionId, "LOGOUT", randomReason);
+                System.out.println("🔴 [AGENT] " + user + " logged out (" + randomReason + ").");
 
                 // Agent takes a break before their next shift
                 Thread.sleep(ThreadLocalRandom.current().nextInt(30000, 60000));
@@ -173,7 +243,7 @@ public class UnifiedWorkflowSimulator2 implements CommandLineRunner {
             connectEvent.setCallResult("SUCCESS");
             callProducer.send(connectEvent);
 
-            // Sleep thread briefly to simulate conversation
+            // Sleep thread briefly to simulate conversation physically occurring
             Thread.sleep(5000); 
 
             // 5. DISCONNECTED
