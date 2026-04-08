@@ -1,3 +1,4 @@
+/*
 package com.telemanas.eventconsumer.consumer;
 
 import java.time.Instant;
@@ -5,9 +6,9 @@ import java.time.Instant;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
-import com.telemanas.eventconsumer.model.CallMetric;
-import com.telemanas.eventconsumer.model.Event;
-import com.telemanas.eventconsumer.model.HotCallEvent;
+import com.telemanas.eventconsumer.model.prev.CallMetric;
+import com.telemanas.eventconsumer.model.prev.Event;
+import com.telemanas.eventconsumer.model.prev.HotCallEvent;
 import com.telemanas.eventconsumer.repository.CallEventHotRepository;
 import com.telemanas.eventconsumer.repository.CallMetricRepository;
 import com.telemanas.eventconsumer.repository.EventRepository;
@@ -69,3 +70,4 @@ public class KafkaEventConsumer {
         System.out.println("Saved event + updated metrics for " + state);
     }
 }
+*/

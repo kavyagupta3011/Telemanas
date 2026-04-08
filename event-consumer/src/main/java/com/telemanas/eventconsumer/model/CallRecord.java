@@ -62,9 +62,20 @@ public class CallRecord {
     @Column(name = "talk_time")
     private Long talkTime;
 
+    @Column(name = "hangup_cause")
+    private String hangupCause;
+
+    @Column(name = "date_added")
+    private Integer dateAdded;
+
+    @Column(name = "setup_time")
+    private Long setupTime;
+
+    @Column(name = "hold_time")
+    private Long holdTime;
+
+
     // --- GETTERS AND SETTERS ---
-    // (Generate or paste all getters and setters for these fields here)
-    
     public String getCallId() { return callId; }
     public void setCallId(String callId) { this.callId = callId; }
     
@@ -112,4 +123,16 @@ public class CallRecord {
     
     public Long getTalkTime() { return talkTime; }
     public void setTalkTime(Long talkTime) { this.talkTime = talkTime; }
+
+    public String getHangupCause() { return hangupCause; }
+    public void setHangupCause(String hangupCause) { this.hangupCause = hangupCause; }
+
+    public Integer getDateAdded() { return dateAdded; }
+    public void setDateAdded(Integer dateAdded) { this.dateAdded = dateAdded; }
+
+    public Long getSetupTime() { return setupTime; }
+    public void setSetupTime(Long setupTime) { this.setupTime = setupTime; }
+
+    public Long getHoldTime() { return holdTime; }
+    public void setHoldTime(Long holdTime) { this.holdTime = holdTime; }
 }

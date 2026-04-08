@@ -16,12 +16,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.telemanas.eventconsumer.model.AgentActivityInput;
 import com.telemanas.eventconsumer.model.AutoCallInput;
 import com.telemanas.eventconsumer.model.CallRecordInput;
+import com.telemanas.eventconsumer.model.CmCdrInput;
+import com.telemanas.eventconsumer.model.UserDispositionInput;
 import com.telemanas.eventconsumer.model.UserSessionInput; // Added import
 
 @Configuration
 public class KafkaConsumerConfig {
 
-    // 1. User Session Configuration
+    // USER SESSION CONSUMER AND LISTENER 
     @Bean
     public ConsumerFactory<String, UserSessionInput> userSessionConsumerFactory(
             KafkaProperties kafkaProperties,
@@ -47,8 +49,9 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    // 2. AutoCall Configuration
-   
+
+
+    //  AUTOCALL
     @Bean
     public ConsumerFactory<String, AutoCallInput> autoCallConsumerFactory(
             KafkaProperties kafkaProperties,
@@ -74,7 +77,8 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-    // 3. Agent Activity Configuration
+
+    // AGENT ACITIVITY 
     @Bean
     public ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory(
             KafkaProperties kafkaProperties,
@@ -90,8 +94,7 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
     }
-
-    @Bean
+     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> agentActivityKafkaListenerContainerFactory(
             ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory) {
         ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> factory =
@@ -100,7 +103,42 @@ public class KafkaConsumerConfig {
         return factory;
     }
 
-   // 4. Call Record Configuration
+
+
+    // USER DISPOSITION 
+     @Bean
+        public ConsumerFactory<String, UserDispositionInput> userDispositionConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+
+        JsonDeserializer<UserDispositionInput> valueDeserializer =
+                new JsonDeserializer<>(UserDispositionInput.class, objectMapper, false);
+
+        valueDeserializer.addTrustedPackages("*");
+
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+        }
+        @Bean
+        public ConcurrentKafkaListenerContainerFactory<String, UserDispositionInput> userDispositionKafkaListenerContainerFactory(
+                ConsumerFactory<String, UserDispositionInput> userDispositionConsumerFactory) {
+
+        ConcurrentKafkaListenerContainerFactory<String, UserDispositionInput> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(userDispositionConsumerFactory);
+
+        return factory;
+        }
+
+   
+
+
+   // Call Record Configuration
     @Bean
     public ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory(
             KafkaProperties kafkaProperties,
@@ -116,7 +154,6 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
     }
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> callKafkaListenerContainerFactory(
             ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory) {
@@ -125,4 +162,32 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(callRecordConsumerFactory);
         return factory;
     }
+
+// cm cdr 
+        @Bean
+        public ConsumerFactory<String, CmCdrInput> cmCdrConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+
+        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+
+        JsonDeserializer<CmCdrInput> deserializer =
+                new JsonDeserializer<>(CmCdrInput.class, objectMapper, false);
+        deserializer.addTrustedPackages("*");
+
+        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
+        }
+
+        @Bean
+        public ConcurrentKafkaListenerContainerFactory<String, CmCdrInput>
+        cmCdrKafkaListenerContainerFactory(
+                ConsumerFactory<String, CmCdrInput> factory) {
+
+        ConcurrentKafkaListenerContainerFactory<String, CmCdrInput> container =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        container.setConsumerFactory(factory);
+        return container;
+        }
+   
 }

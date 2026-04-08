@@ -4,7 +4,7 @@ import java.time.Instant;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.telemanas.eventconsumer.model.HotCallEvent;
+import com.telemanas.eventconsumer.model.prev.HotCallEvent;
 
 public interface CallEventHotRepository
         extends JpaRepository<HotCallEvent, Long> {

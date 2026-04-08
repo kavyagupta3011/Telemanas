@@ -19,7 +19,7 @@ public class CallRecordConsumer {
     @KafkaListener(
         topics = "live-call-events", 
         groupId = "telemanas-call-group",
-        containerFactory = "callKafkaListenerContainerFactory" // We will add this to config next!
+        containerFactory = "callKafkaListenerContainerFactory"
     )
     public void consumeLiveCallEvent(CallRecordInput input) {
         if (input.getCallId() == null) {

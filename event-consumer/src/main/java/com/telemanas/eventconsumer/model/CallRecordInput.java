@@ -29,9 +29,21 @@ public class CallRecordInput {
 
     @JsonProperty("system_disposition")
     private String systemDisposition;
+
+    @JsonProperty("date_added")
+    private Integer dateAdded;
     
     @JsonProperty("call_result")
     private String callResult;
+
+    @JsonProperty("hangup_cause")
+    private String hangupCause;
+    
+    @JsonProperty("hangup_cause_description")
+    private String hangupCauseDescription;
+    
+    @JsonProperty("hangup_on_hold")
+    private Boolean hangupOnHold;
 
     @JsonProperty("call_originate_time")
     private Instant callOriginateTime;
@@ -39,20 +51,20 @@ public class CallRecordInput {
     @JsonProperty("call_end_time")
     private Instant callEndTime;
 
-    @JsonProperty("hangup_cause_description")
-    private String hangupCauseDescription;
-    
-    @JsonProperty("hangup_on_hold")
-    private Boolean hangupOnHold;
-    
-    @JsonProperty("ivr_time")
-    private Long ivrTime;
+    @JsonProperty("setup_time")
+    private Long setupTime;
     
     @JsonProperty("ringing_time")
     private Long ringingTime;
+
+    @JsonProperty("ivr_time")
+    private Long ivrTime;
     
     @JsonProperty("talk_time")
     private Long talkTime;
+
+    @JsonProperty("hold_time")
+    private Long holdTime;
 
     // --- GETTERS AND SETTERS ---
     public String getEventType() { return eventType; }
@@ -105,4 +117,17 @@ public class CallRecordInput {
 
     public Long getTalkTime() { return talkTime; }
     public void setTalkTime(Long talkTime) { this.talkTime = talkTime; }
+
+    public String getHangupCause() { return hangupCause; }
+    public void setHangupCause(String hangupCause) { this.hangupCause = hangupCause; }
+
+    public Integer getDateAdded() { return dateAdded; }
+    public void setDateAdded(Integer dateAdded) { this.dateAdded = dateAdded; }
+
+    public Long getSetupTime() { return setupTime; }
+    public void setSetupTime(Long setupTime) { this.setupTime = setupTime; }
+
+    public Long getHoldTime() { return holdTime; }
+    public void setHoldTime(Long holdTime) { this.holdTime = holdTime; }
+
 }

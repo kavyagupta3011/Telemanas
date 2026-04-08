@@ -1,4 +1,4 @@
-package com.telemanas.eventconsumer.model;
+package com.telemanas.eventconsumer.model.prev;
 
 import java.time.Instant;
 

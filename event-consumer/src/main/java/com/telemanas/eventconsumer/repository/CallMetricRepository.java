@@ -1,9 +1,10 @@
 package com.telemanas.eventconsumer.repository;
 
-import com.telemanas.eventconsumer.model.CallMetric;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.telemanas.eventconsumer.model.prev.CallMetric;
 
 public interface CallMetricRepository extends JpaRepository<CallMetric, Long> {
     Optional<CallMetric> findByState(String state);
