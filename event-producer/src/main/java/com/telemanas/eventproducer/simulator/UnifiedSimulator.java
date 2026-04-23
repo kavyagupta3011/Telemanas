@@ -34,7 +34,7 @@ import com.telemanas.eventproducer.service.UserSessionProducerService;
 
 /**
  * ============================================================
- * ENHANCED Unified Workflow Simulator — All 5 Database Tables
+ * Unified Workflow Simulator — All 5 Database Tables
  * ============================================================
  *
  * TABLE COVERAGE:
@@ -49,7 +49,7 @@ import com.telemanas.eventproducer.service.UserSessionProducerService;
  *
  * 3. auto_call              → AutoCall ON / OFF per shift with reasons and timestamps
  *
- * 4. calls (3-table join)   → Full call lifecycle events:
+ * 4. live_calls   → Full call lifecycle events:
  *      IVR_ENTERED           ivr_time measured from entry to queue
  *      QUEUE_ENTERED         queue_time measured until agent assigned
  *      RINGING               ringing_time measured until pickup
@@ -72,16 +72,14 @@ import com.telemanas.eventproducer.service.UserSessionProducerService;
  *                             auto_call_on_time, user_connected/disconnected_time,
  *                             disposed_by_crm flag
  *
- * ============================================================
- * KEY ARCHITECTURAL CHANGES FROM ORIGINAL:
- * ============================================================
+ * ==================================================
  *
- * 1. availableAgents queue now holds AgentContext (not bare String).
+ * 1. availableAgents queue holds AgentContext.
  *    AgentContext carries: userId, sessionId, autoCallOnTime.
  *    This allows disposition events to be fully populated with the
  *    correct session linkage without any extra lookups.
  *
- * 2. Two new maps:
+ * 2. Two maps:
  *    - erroneousBreakFlags  → AtomicBoolean per agent to signal forced breaks
  *    - latestAgentContexts  → latest AgentContext per agent so the erroneous-break
  *                             monitor can re-insert them after their break ends
