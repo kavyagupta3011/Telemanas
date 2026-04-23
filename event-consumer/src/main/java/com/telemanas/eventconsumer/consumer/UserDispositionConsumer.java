@@ -37,7 +37,7 @@ public class UserDispositionConsumer {
                     return newRecord;
                 });
 
-        // --- Field Mapping ---
+        // Field Mapping
         record.setCallId(input.getCallId());
         record.setCallLegId(input.getCallLegId());
         record.setDateAdded(input.getDateAdded());

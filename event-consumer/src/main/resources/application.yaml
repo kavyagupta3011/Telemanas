@@ -10,8 +10,6 @@ spring:
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
      
-
-
   datasource:
     url: jdbc:postgresql://127.0.0.1:5433/metricsdb?options=-c%20TimeZone=Asia/Kolkata
     username: grafana
