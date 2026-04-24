@@ -29,3 +29,7 @@ logging:
   level:
     org.apache.kafka: INFO
     org.springframework.kafka: INFO
+ 
+# Simulator control: set to true to run the built-in simulator on startup
+simulator:
+  enabled: false

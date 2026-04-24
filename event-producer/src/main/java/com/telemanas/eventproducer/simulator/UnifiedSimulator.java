@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import com.telemanas.eventproducer.model.AgentActivityEvent;
@@ -33,6 +34,7 @@ import com.telemanas.eventproducer.service.UserDispositionProducerService;
 import com.telemanas.eventproducer.service.UserSessionProducerService;
 
 @Component
+@ConditionalOnProperty(prefix = "simulator", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class UnifiedSimulator implements CommandLineRunner {
 
     // ── Services ────────────────────────────────────────────────────────
