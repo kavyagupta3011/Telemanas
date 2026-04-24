@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Format saved to database 
 @Entity
 @Table(name = "agent_activity")
 public class AgentActivity {
@@ -26,8 +27,8 @@ public class AgentActivity {
 
     private String breakReason;
     private String agentBreakReason;
+    
     // Getters and Setters
-
     public Long getId() { return id; }
 
     public String getCampaignSessionId() { return campaignSessionId; }

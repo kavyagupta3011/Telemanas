@@ -7,6 +7,7 @@ import com.telemanas.eventconsumer.model.UserDisposition;
 import com.telemanas.eventconsumer.model.UserDispositionInput;
 import com.telemanas.eventconsumer.repository.UserDispositionRepository;
 
+// Service responsible for consuming user disposition events from Kafka and processing them (saving/updating user disposition records in the database).
 @Service
 public class UserDispositionConsumer {
 
@@ -16,6 +17,7 @@ public class UserDispositionConsumer {
         this.userDispositionRepository = userDispositionRepository;
     }
 
+    // Kafka listener to topic "user-disposition-events" with group ID "telemanas-user-disposition-group". It uses a specific container factory for deserialization.
     @KafkaListener(
         topics = "user-disposition-events",
         groupId = "telemanas-user-disposition-group",
@@ -29,7 +31,7 @@ public class UserDispositionConsumer {
             return;
         }
 
-        // Fetch existing record OR create new (UPSERT logic)
+        // Fetch existing record OR create new 
         UserDisposition record = userDispositionRepository.findById(input.getId())
                 .orElseGet(() -> {
                     UserDisposition newRecord = new UserDisposition();

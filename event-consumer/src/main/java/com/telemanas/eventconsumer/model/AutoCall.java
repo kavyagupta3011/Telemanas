@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Format saved to database
 @Entity
 @Table(name = "autocall_activity")
 public class AutoCall {
@@ -20,6 +21,7 @@ public class AutoCall {
     private String endReason;
     private Integer campaignId;
 
+    // getters and setters 
     public String getId() { return Id; }
     public void setId(String Id) { this.Id = Id; }
 

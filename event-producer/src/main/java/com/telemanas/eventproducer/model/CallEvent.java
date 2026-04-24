@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+// Represents a call event in the system, containing detailed information about the call and its lifecycle.
 public class CallEvent {
 
     private String eventType;
@@ -66,7 +67,7 @@ public class CallEvent {
     @JsonProperty("hold_time")
     private Long holdTime;
 
-    // --- GETTERS AND SETTERS ---
+    // getters and setters 
     public String getEventType() { return eventType; }
     public void setEventType(String eventType) { this.eventType = eventType; }
     

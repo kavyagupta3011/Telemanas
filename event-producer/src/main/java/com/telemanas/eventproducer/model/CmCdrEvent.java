@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+// Represents a CM CDR event in the system, containing detailed information about the call and its termination.
 public class CmCdrEvent {
 
     @JsonProperty("call_leg_id")
@@ -39,7 +40,7 @@ public class CmCdrEvent {
     @JsonProperty("internal_hangup_reason")
     private String internalHangupReason;
 
-    // getters & setters
+    // getters and setters
     public String getCallLegId() { return callLegId; }
     public void setCallLegId(String callLegId) { this.callLegId = callLegId; }
 

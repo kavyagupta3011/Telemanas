@@ -11,8 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.telemanas.eventproducer.model.CallEvent;
 import com.telemanas.eventproducer.service.CallProducerService;
 
+// REST controller responsible for handling live call events and sending them to Kafka via the CallProducerService.
 @RestController
-@RequestMapping("/api/live-calls")
+@RequestMapping("/api/live-calls") // Base path for all live call related endpoints
 public class CallController {
 
     private final CallProducerService producer;
@@ -21,23 +22,24 @@ public class CallController {
         this.producer = producer;
     }
 
+    // Endpoint to publish a live call event to Kafka.
     @PostMapping
     public ResponseEntity<String> publish(@RequestBody CallEvent event) {
+        // request body is deserialized into a CallEvent object, which is then sent to Kafka using the producer service.
         if (event.getEventType() == null) {
             event.setEventType("CALL");
         }
         if (event.getEventTimestamp() == null) {
             event.setEventTimestamp(Instant.now());
         }
-
         // Ensure we have a key for Kafka; prefer crtObjectId, fallback to callId
         if (event.getCrtObjectId() == null || event.getCrtObjectId().isEmpty()) {
             if (event.getCallId() != null) {
                 event.setCrtObjectId(event.getCallId());
             }
         }
-
         producer.send(event);
+        
         return ResponseEntity.ok("Live call event sent");
     }
 }

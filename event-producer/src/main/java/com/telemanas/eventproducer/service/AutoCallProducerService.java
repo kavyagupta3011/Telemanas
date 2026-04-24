@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventproducer.model.AutoCallEvent;
 
+// Service responsible for sending auto call events to Kafka.
 @Service
 public class AutoCallProducerService {
     

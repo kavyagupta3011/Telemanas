@@ -2,6 +2,7 @@ package com.telemanas.eventproducer.model;
 
 import java.time.Instant;
 
+// Represents an auto call event in the system, containing detailed information about the auto call state and reasons for users.
 public class AutoCallEvent {
 
     private String Id;
@@ -13,7 +14,7 @@ public class AutoCallEvent {
     private String endReason;
     private Integer campaignId;
 
-    
+    // getters and setters 
     public String getId() { return Id; }
     public void setId(String Id) { this.Id = Id; }
 

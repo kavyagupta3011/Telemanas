@@ -24,89 +24,83 @@ import com.telemanas.eventconsumer.model.UserSessionInput; // Added import
 public class KafkaConsumerConfig {
 
     // USER SESSION CONSUMER AND LISTENER 
+    // Defines a ConsumerFactory bean for consuming UserSessionInput messages from Kafka. It configures the deserializer to use Jackson for JSON deserialization and trusts all packages.
     @Bean
-    public ConsumerFactory<String, UserSessionInput> userSessionConsumerFactory(
-            KafkaProperties kafkaProperties,
-            ObjectMapper objectMapper) {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
-        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
-        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+        public ConsumerFactory<String, UserSessionInput> userSessionConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+                Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+                props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+                props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+                props.remove(JsonDeserializer.TYPE_MAPPINGS);
 
-        JsonDeserializer<UserSessionInput> valueDeserializer =
-                new JsonDeserializer<>(UserSessionInput.class, objectMapper, false);
-        valueDeserializer.addTrustedPackages("*");
+                JsonDeserializer<UserSessionInput> valueDeserializer =
+                        new JsonDeserializer<>(UserSessionInput.class, objectMapper, false);
+                valueDeserializer.addTrustedPackages("*");
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
-    }
-
+                return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+        }
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, UserSessionInput> userSessionKafkaListenerContainerFactory(
-            ConsumerFactory<String, UserSessionInput> userSessionConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, UserSessionInput> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(userSessionConsumerFactory);
-        return factory;
-    }
+        public ConcurrentKafkaListenerContainerFactory<String, UserSessionInput> userSessionKafkaListenerContainerFactory(
+                ConsumerFactory<String, UserSessionInput> userSessionConsumerFactory) {
+                ConcurrentKafkaListenerContainerFactory<String, UserSessionInput> factory =
+                        new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(userSessionConsumerFactory);
+                return factory;
+        }
 
-
-
-    //  AUTOCALL
+    //  AUTOCALL CONSUMER AND LISTENER
     @Bean
-    public ConsumerFactory<String, AutoCallInput> autoCallConsumerFactory(
-            KafkaProperties kafkaProperties,
-            ObjectMapper objectMapper) {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
-        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
-        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+        public ConsumerFactory<String, AutoCallInput> autoCallConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+                Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+                props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+                props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+                props.remove(JsonDeserializer.TYPE_MAPPINGS);
 
-        JsonDeserializer<AutoCallInput> valueDeserializer =
-                new JsonDeserializer<>(AutoCallInput.class, objectMapper, false);
-        valueDeserializer.addTrustedPackages("*");
+                JsonDeserializer<AutoCallInput> valueDeserializer =
+                        new JsonDeserializer<>(AutoCallInput.class, objectMapper, false);
+                valueDeserializer.addTrustedPackages("*");
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
-    }
-
+                return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+        }
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, AutoCallInput> autoCallKafkaListenerContainerFactory(
-            ConsumerFactory<String, AutoCallInput> autoCallConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, AutoCallInput> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(autoCallConsumerFactory);
-        return factory;
-    }
+        public ConcurrentKafkaListenerContainerFactory<String, AutoCallInput> autoCallKafkaListenerContainerFactory(
+                ConsumerFactory<String, AutoCallInput> autoCallConsumerFactory) {
+                ConcurrentKafkaListenerContainerFactory<String, AutoCallInput> factory =
+                        new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(autoCallConsumerFactory);
+                return factory;
+        }
 
-
-    // AGENT ACITIVITY 
+    // AGENT ACITIVITY CONSUMER AND LISTENER
     @Bean
-    public ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory(
-            KafkaProperties kafkaProperties,
-            ObjectMapper objectMapper) {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
-        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
-        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+        public ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+                Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+                props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+                props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+                props.remove(JsonDeserializer.TYPE_MAPPINGS);
 
-        JsonDeserializer<AgentActivityInput> valueDeserializer =
-                new JsonDeserializer<>(AgentActivityInput.class, objectMapper, false);
-        valueDeserializer.addTrustedPackages("*");
+                JsonDeserializer<AgentActivityInput> valueDeserializer =
+                        new JsonDeserializer<>(AgentActivityInput.class, objectMapper, false);
+                valueDeserializer.addTrustedPackages("*");
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
-    }
-     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> agentActivityKafkaListenerContainerFactory(
-            ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(agentActivityConsumerFactory);
-        return factory;
-    }
+                return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+        }
+    @Bean
+        public ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> agentActivityKafkaListenerContainerFactory(
+                ConsumerFactory<String, AgentActivityInput> agentActivityConsumerFactory) {
+                ConcurrentKafkaListenerContainerFactory<String, AgentActivityInput> factory =
+                        new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(agentActivityConsumerFactory);
+                return factory;
+        }
 
-
-
-    // USER DISPOSITION 
-     @Bean
+    // USER DISPOSITION CONSUMER AND LISTENER
+    @Bean
         public ConsumerFactory<String, UserDispositionInput> userDispositionConsumerFactory(
                 KafkaProperties kafkaProperties,
                 ObjectMapper objectMapper) {
@@ -123,7 +117,7 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
         }
-        @Bean
+    @Bean
         public ConcurrentKafkaListenerContainerFactory<String, UserDispositionInput> userDispositionKafkaListenerContainerFactory(
                 ConsumerFactory<String, UserDispositionInput> userDispositionConsumerFactory) {
 
@@ -135,36 +129,33 @@ public class KafkaConsumerConfig {
         return factory;
         }
 
-   
-
-
-   // Call Record Configuration
+    // CALL RECORD CONSUMER AND LISTENER        
     @Bean
-    public ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory(
-            KafkaProperties kafkaProperties,
-            ObjectMapper objectMapper) {
-        Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
-        props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
-        props.remove(JsonDeserializer.TRUSTED_PACKAGES);
-        props.remove(JsonDeserializer.TYPE_MAPPINGS);
+        public ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory(
+                KafkaProperties kafkaProperties,
+                ObjectMapper objectMapper) {
+                Map<String, Object> props = new HashMap<>(kafkaProperties.buildConsumerProperties());
+                props.remove(JsonDeserializer.VALUE_DEFAULT_TYPE);
+                props.remove(JsonDeserializer.TRUSTED_PACKAGES);
+                props.remove(JsonDeserializer.TYPE_MAPPINGS);
 
-        JsonDeserializer<CallRecordInput> valueDeserializer =
-                new JsonDeserializer<>(CallRecordInput.class, objectMapper, false);
-        valueDeserializer.addTrustedPackages("*");
+                JsonDeserializer<CallRecordInput> valueDeserializer =
+                        new JsonDeserializer<>(CallRecordInput.class, objectMapper, false);
+                valueDeserializer.addTrustedPackages("*");
 
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
-    }
+                return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), valueDeserializer);
+        }
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> callKafkaListenerContainerFactory(
-            ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory) {
-        ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(callRecordConsumerFactory);
-        return factory;
-    }
+        public ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> callKafkaListenerContainerFactory(
+                ConsumerFactory<String, CallRecordInput> callRecordConsumerFactory) {
+                ConcurrentKafkaListenerContainerFactory<String, CallRecordInput> factory =
+                        new ConcurrentKafkaListenerContainerFactory<>();
+                factory.setConsumerFactory(callRecordConsumerFactory);
+                return factory;
+        }
 
-// cm cdr 
-        @Bean
+     // CM CDR CONSUMER AND LISTENER
+     @Bean
         public ConsumerFactory<String, CmCdrInput> cmCdrConsumerFactory(
                 KafkaProperties kafkaProperties,
                 ObjectMapper objectMapper) {
@@ -177,8 +168,7 @@ public class KafkaConsumerConfig {
 
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), deserializer);
         }
-
-        @Bean
+     @Bean
         public ConcurrentKafkaListenerContainerFactory<String, CmCdrInput>
         cmCdrKafkaListenerContainerFactory(
                 ConsumerFactory<String, CmCdrInput> factory) {
@@ -189,5 +179,4 @@ public class KafkaConsumerConfig {
         container.setConsumerFactory(factory);
         return container;
         }
-   
 }

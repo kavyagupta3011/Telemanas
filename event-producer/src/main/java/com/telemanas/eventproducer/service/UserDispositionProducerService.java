@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventproducer.model.UserDisposition;
 
+// Service responsible for sending user disposition events to Kafka.
 @Service
 public class UserDispositionProducerService {
 

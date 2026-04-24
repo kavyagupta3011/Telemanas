@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Format saved to database
 @Entity
 @Table(name = "cm_cdr_history")
 public class CmCdr {
@@ -45,7 +46,7 @@ public class CmCdr {
     @Column(name = "internal_hangup_reason")
     private String internalHangupReason;
 
-    // getters & setters
+    // getters and setters
     public String getCallLegId() { return callLegId; }
     public void setCallLegId(String callLegId) { this.callLegId = callLegId; }
 

@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Format saved to database
 @Entity
 @Table(name = "live_calls")
 public class CallRecord {
@@ -31,7 +32,6 @@ public class CallRecord {
     @Column(name = "call_type")
     private String callType;
 
-    // We store the latest event type so Grafana knows exactly what state the call is in right now
     @Column(name = "current_state")
     private String currentState; 
 
@@ -74,8 +74,7 @@ public class CallRecord {
     @Column(name = "hold_time")
     private Long holdTime;
 
-
-    // --- GETTERS AND SETTERS ---
+    // getters and setters
     public String getCallId() { return callId; }
     public void setCallId(String callId) { this.callId = callId; }
     

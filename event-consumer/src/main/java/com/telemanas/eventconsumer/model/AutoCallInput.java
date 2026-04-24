@@ -2,6 +2,7 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+// Format received from Kafka
 public class AutoCallInput {
 
     private String Id;
@@ -13,7 +14,7 @@ public class AutoCallInput {
     private String endReason;
     private Integer campaignId;
 
-    
+    // getters and setters
     public String getId() { return Id; }
     public void setId(String Id) { this.Id = Id; }
 

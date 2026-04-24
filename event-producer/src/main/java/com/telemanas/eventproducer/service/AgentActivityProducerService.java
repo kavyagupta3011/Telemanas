@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventproducer.model.AgentActivityEvent;
 
+// Service responsible for sending agent activity events to Kafka.
 @Service
 public class AgentActivityProducerService {
 

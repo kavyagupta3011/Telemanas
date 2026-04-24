@@ -7,6 +7,7 @@ import com.telemanas.eventconsumer.model.AgentActivity;
 import com.telemanas.eventconsumer.model.AgentActivityInput;
 import com.telemanas.eventconsumer.repository.AgentActivityRepository;
 
+// Service responsible for consuming agent activity events from Kafka and processing them ( saving to the database).
 @Service
 public class AgentActivityConsumer {
 
@@ -16,6 +17,7 @@ public class AgentActivityConsumer {
         this.activityRepository = activityRepository;
     }
 
+    // Kafka listener to topic "agent-activity-events" with group ID "telemanas-activity-group". It uses a specific container factory for deserialization.
     @KafkaListener(
         topics = "agent-activity-events", 
         groupId = "telemanas-activity-group",
@@ -36,11 +38,8 @@ public class AgentActivityConsumer {
         }
 
         // Map the fields from the input to the database entity
-        // Note: Mapping input.sessionId to entity.campaignSessionId
         activity.setCampaignSessionId(input.getSessionId());
         activity.setCampaignId(input.getCampaignId());
-        
-        // Map timestamps and reasons
         activity.setReadyStartTime(input.getReadyStartTime());
         activity.setReadyEndTime(input.getReadyEndTime());
         activity.setBreakEndTime(input.getBreakEndTime());

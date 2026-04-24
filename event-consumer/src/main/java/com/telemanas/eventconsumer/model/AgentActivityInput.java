@@ -2,6 +2,7 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+// Format recieved from Kafka
 public class AgentActivityInput {
 
     private Long id;
@@ -17,11 +18,10 @@ public class AgentActivityInput {
     private String breakReason;
     private String agentBreakReason;
 
-    private String eventType;   // AGENT_SET_READY / AGENT_SET_BREAK
+    private String eventType;  
     private Instant createdAt;
 
     // Getters and Setters
-
     public Long getId() { return id; }
 
     public String getSessionId() { return sessionId; }

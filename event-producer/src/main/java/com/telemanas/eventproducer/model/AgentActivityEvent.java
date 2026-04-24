@@ -1,7 +1,7 @@
 package com.telemanas.eventproducer.model;
 import java.time.Instant;
 
-
+// Represents an agent activity event in the system, containing detailed information about the agent's Readiness.
 public class AgentActivityEvent {
     private Long id;
 
@@ -16,11 +16,10 @@ public class AgentActivityEvent {
     private String breakReason;
     private String agentBreakReason;
 
-    private String eventType;   // AGENT_SET_READY / AGENT_SET_BREAK
+    private String eventType;  
     private Instant createdAt;
 
     // Getters and Setters
-
     public Long getId() { return id; }
 
     public String getSessionId() { return sessionId; }

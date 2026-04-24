@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventproducer.model.CmCdrEvent;
 
+// Service responsible for sending CM CDR events to Kafka.
 @Service
 public class CmCdrProducerService {
 

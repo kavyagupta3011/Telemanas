@@ -32,98 +32,6 @@ import com.telemanas.eventproducer.service.CmCdrProducerService;
 import com.telemanas.eventproducer.service.UserDispositionProducerService; 
 import com.telemanas.eventproducer.service.UserSessionProducerService;
 
-/**
- * ============================================================
- * Unified Workflow Simulator — All 5 Database Tables
- * ============================================================
- *
- * TABLE COVERAGE:
- *
- * 1. user_sessions          → LOGIN / LOGOUT with realistic reasons
- *                             (Logout from UI, Session TimeOut, Forced termination, urgent work)
- *
- * 2. user_readiness         → AGENT_SET_READY and break events
- *                             agentBreakReason: Just.Logged.In, Unavailable, erroneous.channel...
- *                             Includes erroneous system-initiated breaks (auto-fired when
- *                             the break monitor detects the agent has been idle/missing calls)
- *
- * 3. auto_call              → AutoCall ON / OFF per shift with reasons and timestamps
- *
- * 4. live_calls   → Full call lifecycle events:
- *      IVR_ENTERED           ivr_time measured from entry to queue
- *      QUEUE_ENTERED         queue_time measured until agent assigned
- *      RINGING               ringing_time measured until pickup
- *      CONNECTED             systemDisposition=CONNECTED, callResult=SUCCESS
- *      HOLD_STARTED/ENDED    30% of calls — hold_time tracked
- *      CONFERENCE_JOINED     10% of calls — second agent joins (association_type=conference)
- *      TRANSFERRED           20% of calls — forwarded to Feedback campaign (id=4)
- *                            callType=transferred.to.campaign.detail
- *      DISCONNECTED          all timing fields finalised (talk, hold, ivr, queue, ring)
- *      PROVIDER_FAILURE       3% of calls — telco/SIP failure before routing
- *      ABANDONED             no agent answered within 10s, hangup_on_hold=true
- *
- * 5. cm_cdr_history         → CdrEvent per call leg: setup_time, ring_time, talk_time,
- *                             start/end times, voice_resource_initialization_time,
- *                             hangup_cause, hangup_cause_code, which_side_hungup
- *
- * 6. user_disposition_history → DispositionEvent after agent wrap-up (15-60s post-call):
- *                             talk_time, hold_time, wrap_time, disposition_class/code,
- *                             transfer_time/to, association_type (normal vs conference),
- *                             auto_call_on_time, user_connected/disconnected_time,
- *                             disposed_by_crm flag
- *
- * ==================================================
- *
- * 1. availableAgents queue holds AgentContext.
- *    AgentContext carries: userId, sessionId, autoCallOnTime.
- *    This allows disposition events to be fully populated with the
- *    correct session linkage without any extra lookups.
- *
- * 2. Two maps:
- *    - erroneousBreakFlags  → AtomicBoolean per agent to signal forced breaks
- *    - latestAgentContexts  → latest AgentContext per agent so the erroneous-break
- *                             monitor can re-insert them after their break ends
- *
- * 3. Each agent shift spawns a separate "break monitor" daemon thread.
- *    It runs independently, fires erroneous break events ~15% of windows,
- *    pulls the agent off the queue, sleeps, then puts them back.
- *
- * 4. Call handler now returns the primary agent to the pool ONLY after:
- *    a) DISCONNECTED event, b) wrap-up sleep, c) DispositionEvent sent.
- *    This correctly models the agent being "busy" through post-call work.
- *
- * 5. Conference agent is pulled non-blocking (poll(0)). If none available,
- *    the call simply proceeds as a normal 1-on-1 call.
- *
- * NEW MODELS NEEDED (ensure these fields exist):
- *
- *   CallEvent (add):
- *     Long ivrTime, Long queueTime, Long ringingTime, Long holdTime
- *     String hangupCause, String hangupCauseDescription
- *
- *   AgentActivityEvent (add):
- *     String agentBreakReason
- *
- *   CdrEvent (new):
- *     String callLegId, Integer campaignId
- *     Instant startTime, Instant endTime
- *     Long setupTime, Long ringTime, Long talkTime
- *     Instant voiceResourceInitializationTime
- *     String hangupCause, String hangupCauseCode
- *     String whichSideHungUp, String internalHangupReason
- *
- *   DispositionEvent (new):
- *     String callLegId, String callId, Integer campaignId
- *     String userId, String sessionId
- *     Instant dateAdded, Instant userConnectedTime, Instant userDisconnectedTime
- *     Instant userDispositionTime, Instant transferTime, Instant autoCallOnTime
- *     String transferTo, String dispositionClass, String dispositionCode
- *     String associationType  ("normal" | "conference")
- *     Long talkTime, Long holdTime, Long customerHoldTime, Long wrapTime
- *     Boolean working, Boolean disposedByCrm
- */
-
-
 @Component
 public class UnifiedSimulator implements CommandLineRunner {
 
@@ -212,12 +120,10 @@ public class UnifiedSimulator implements CommandLineRunner {
         this.dispositionProducer = dispositionProducer;
     }
 
-    // ====================================================================
     // ENTRY POINT
-    // ====================================================================
     @Override
     public void run(String... args) throws Exception {
-        System.out.println("🚀 Starting FULL-TABLE Call Center Simulation...");
+        System.out.println(" Starting FULL-TABLE Call Center Simulation...");
 
         List<String> users = List.of(
             "user1","user2","user3","user4","user5","user6","user7","user8","user9","user10",
@@ -241,10 +147,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         new Thread(() -> generateInboundCalls(callPool)).start();
     }
 
-    // ====================================================================
     // THE AGENT BRAIN — runs as a continuous loop (shift → break → shift)
-    // TABLE coverage: user_sessions, user_readiness, auto_call
-    // ====================================================================
     private void runAgentShift(String user) {
         try {
             while (true) {
@@ -258,7 +161,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 // ── user_sessions: LOGIN ─────────────────────────────────
                 sendSessionEvent(user, sessionId, "LOGIN", null);
                 activeAgents.add(user);
-                System.out.println("🟢 [AGENT] " + user + " logged in. Session=" + sessionId);
+                System.out.println(" [AGENT] " + user + " logged in. Session=" + sessionId);
 
                 // ── user_readiness: READY (after Just.Logged.In delay) ───
                 Thread.sleep(ThreadLocalRandom.current().nextLong(2000, 5000));
@@ -271,7 +174,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 activityEvent.setEventType("AGENT_SET_READY");
                 activityEvent.setAgentBreakReason("Just.Logged.In");
                 activityProducer.send(activityEvent);
-                System.out.println("🟡 [AGENT] " + user + " is READY.");
+                System.out.println(" [AGENT] " + user + " is READY.");
 
                 // ── auto_call: AutoCall ON ───────────────────────────────
                 Thread.sleep(ThreadLocalRandom.current().nextLong(2000, 5000));
@@ -284,7 +187,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 autoCallEvent.setAutoCallStartReason("System Trigger");
                 autoCallEvent.setAutoCallOnStartTime(autoCallOnTime);
                 autoCallProducer.send(autoCallEvent);
-                System.out.println("🔵 [AGENT] " + user + " AutoCall ON.");
+                System.out.println(" [AGENT] " + user + " AutoCall ON.");
 
                 // Agent is now fully operational — join the available pool
                 AgentContext ctx = new AgentContext(user, sessionId, autoCallOnTime);
@@ -311,7 +214,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 autoCallEvent.setAutoCallOffEndTime(shiftEndTime.plusSeconds(2));
                 autoCallEvent.setEndReason("Batch Completed");
                 autoCallProducer.send(autoCallEvent);
-                System.out.println("📴 [AGENT] " + user + " AutoCall OFF.");
+                System.out.println(" [AGENT] " + user + " AutoCall OFF.");
 
                 // user_readiness: READY state ended
                 activityEvent.setReadyEndTime(shiftEndTime.plusSeconds(2));
@@ -321,7 +224,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 ));
                 activityEvent.setBreakReason(breakReason);
                 activityProducer.send(activityEvent);
-                System.out.println("🛑 [AGENT] " + user + " READY state ended (" + breakReason + ").");
+                System.out.println(" [AGENT] " + user + " READY state ended (" + breakReason + ").");
 
                 // user_sessions: LOGOUT
                 String logoutReason = pickRandom(List.of(
@@ -329,7 +232,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                     "urgent work", "Session TimeOut", "Forced termination"
                 ));
                 sendSessionEvent(user, sessionId, "LOGOUT", logoutReason);
-                System.out.println("🔴 [AGENT] " + user + " logged out (" + logoutReason + ").");
+                System.out.println(" [AGENT] " + user + " logged out (" + logoutReason + ").");
 
                 // Rest between shifts
                 Thread.sleep(ThreadLocalRandom.current().nextLong(30000, 60000));
@@ -339,12 +242,10 @@ public class UnifiedSimulator implements CommandLineRunner {
         }
     }
 
-    // ====================================================================
+    
     // ERRONEOUS BREAK MONITOR
     // Runs concurrently alongside each agent's shift.
     // Simulates: agent misses/rejects calls repeatedly → system forces a break.
-    // TABLE: user_readiness, breakReason = erroneous.channel.system.initiated.break
-    // ====================================================================
     private void runErroneousBreakMonitor(
             String user,
             String sessionId,
@@ -386,7 +287,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                         AgentContext ctx = latestAgentContexts.get(user);
                         if (ctx != null) {
                             availableAgents.put(ctx);
-                            System.out.println("✅ [ERRONEOUS BREAK OVER] " + user + " back in pool.");
+                            System.out.println(" [ERRONEOUS BREAK OVER] " + user + " back in pool.");
 
                             // user_readiness: fire READY-resumed event
                             AgentActivityEvent resumeEvent = new AgentActivityEvent();
@@ -406,9 +307,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         }
     }
 
-    // ====================================================================
     // THE CALL BRAIN — generates inbound traffic at random intervals
-    // ====================================================================
     private void generateInboundCalls(ExecutorService callPool) {
         try {
             while (true) {
@@ -421,14 +320,11 @@ public class UnifiedSimulator implements CommandLineRunner {
         }
     }
 
-    // ====================================================================
     // SINGLE CALL HANDLER
     // Full lifecycle: IVR → Queue → Ring → Connect
     //               → [Hold] → [Conference] → [Transfer] → Disconnect
     //               → Wrap-up → Disposition → Agent back to pool
     //
-    // TABLE coverage: calls, cm_cdr_history, user_disposition_history
-    // ====================================================================
     private void handleSingleCall() {
         try {
             Integer campaignId = CAMPAIGN_IDS.get(
@@ -440,11 +336,10 @@ public class UnifiedSimulator implements CommandLineRunner {
             String callLegId   = "leg-"  + UUID.randomUUID().toString().substring(0, 8);
             Instant originateTime = Instant.now();
 
-            System.out.println("☎️  [INBOUND] Caller from " + stateName + " entered the system.");
+            System.out.println(" [INBOUND] Caller from " + stateName + " entered the system.");
 
-            // ── STEP 1: IVR ─────────────────────────────────────────────
+            // ── IVR ─────────────────────────────────────────────
             // Caller listens to IVR menu and presses options (5–15 seconds).
-            // TABLE: calls → IVR_ENTERED, ivr_time is measured here.
             Instant ivrEntryTime = Instant.now();
             callProducer.send(buildCallEvent(crtObjectId, callId, callLegId, campaignId,
                 originateTime, "IVR_ENTERED", ivrEntryTime,
@@ -453,9 +348,8 @@ public class UnifiedSimulator implements CommandLineRunner {
             long ivrDurationMs = ThreadLocalRandom.current().nextLong(5000, 15000);
             Thread.sleep(ivrDurationMs);
 
-            // ── STEP 2: QUEUE ENTRY ──────────────────────────────────────
+            // ── QUEUE ENTRY ──────────────────────────────────────
             // Caller enters the hold queue. queue_time begins here.
-            // TABLE: calls → QUEUE_ENTERED
             Instant queueEntryTime = Instant.now();
             CallEvent queueEvent = buildCallEvent(crtObjectId, callId, callLegId, campaignId,
                 originateTime, "QUEUE_ENTERED", queueEntryTime,
@@ -474,9 +368,8 @@ public class UnifiedSimulator implements CommandLineRunner {
             cdrLeg.setVoiceResourceInitializationTime(legStartTime.plusMillis(setupTimeMs));
             // End-of-leg fields will be filled in before the final cdrProducer.send()
 
-            // ── STEP 3: PROVIDER FAILURE (3%) ───────────────────────────
+            // ── PROVIDER FAILURE (3%) ───────────────────────────
             // Occasional telco/SIP failure before any agent is even involved.
-            // TABLE: calls → PROVIDER_FAILURE | cm_cdr_history with SIP 503
             if (ThreadLocalRandom.current().nextInt(100) < 3) {
                 System.out.println("🔌 [PROVIDER FAIL] Telco error for caller from " + stateName);
                 Instant failTime = Instant.now();
@@ -498,7 +391,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 return;
             }
 
-            // ── STEP 4: WAIT FOR AGENT (max 10 seconds) ─────────────────
+            // ──  WAIT FOR AGENT (max 10 seconds) ─────────────────
             // Poll the available-agents queue. If nobody answers in 10s → abandoned.
             AgentContext primaryAgent = availableAgents.poll(10, TimeUnit.SECONDS);
             Instant queueExitTime = Instant.now();
@@ -507,8 +400,7 @@ public class UnifiedSimulator implements CommandLineRunner {
             if (primaryAgent == null) {
                 // ── ABANDONED ───────────────────────────────────────────
                 // Caller hung up while waiting. hangup_on_hold = true.
-                // TABLE: calls | cm_cdr_history
-                System.out.println("❌ [ABANDONED] Caller from " + stateName
+                System.out.println("[ABANDONED] Caller from " + stateName
                     + " gave up after " + queueWaitMs + "ms.");
                 Instant abandonTime = Instant.now();
 
@@ -527,10 +419,10 @@ public class UnifiedSimulator implements CommandLineRunner {
                 return;
             }
 
-            // ── STEP 5: RINGING ──────────────────────────────────────────
+            // ──  RINGING ──────────────────────────────────────────
             // Phone rings at the agent's device. ringing_time measured.
             // TABLE: calls → RINGING
-            System.out.println("🔔 [RINGING] " + stateName + " caller → "
+            System.out.println(" [RINGING] " + stateName + " caller → "
                 + primaryAgent.userId + " (queue wait: " + queueWaitMs + "ms)");
             Instant ringStartTime = Instant.now();
             long ringDurationMs   = ThreadLocalRandom.current().nextLong(1000, 4000);
@@ -541,29 +433,26 @@ public class UnifiedSimulator implements CommandLineRunner {
 
             Thread.sleep(ringDurationMs);
 
-            // ── STEP 6: CONNECTED ────────────────────────────────────────
+            // ── CONNECTED ────────────────────────────────────────
             // Agent picks up. Audio bridge established.
-            // TABLE: calls → CONNECTED, systemDisposition=CONNECTED
             Instant connectedTime = Instant.now();
             long talkTimeSec      = ThreadLocalRandom.current().nextLong(60, 300);
 
-            System.out.println("✅ [CONNECTED] " + primaryAgent.userId + " answered (" + stateName + ").");
+            System.out.println(" [CONNECTED] " + primaryAgent.userId + " answered (" + stateName + ").");
             callProducer.send(buildCallEvent(crtObjectId, callId, callLegId, campaignId,
                 originateTime, "CONNECTED", connectedTime,
                 null, "CONNECTED", "SUCCESS", false, null,
                 null, ringDurationMs, null));
 
-            // ── STEP 7: CONFERENCE JOIN (10%) ────────────────────────────
+            // ── CONFERENCE JOIN (10%) ────────────────────────────
             // A second agent is pulled into the call (e.g., supervisor escalation).
-            // CRITICAL: both agents accrue talk_time simultaneously — never sum these
-            //           when computing total call duration for a crt_object_id.
-            // TABLE: calls → CONFERENCE_JOINED | user_disposition_history (two rows, associationType=conference)
+            // both agents accrue talk_time simultaneously — never sum these when computing total call duration for a crt_object_id.
             AgentContext conferenceAgent = null;
             if (ThreadLocalRandom.current().nextInt(100) < 10) {
                 // Non-blocking poll: only conference if an agent is immediately free
                 conferenceAgent = availableAgents.poll(0, TimeUnit.SECONDS);
                 if (conferenceAgent != null) {
-                    System.out.println("🤝 [CONFERENCE] " + conferenceAgent.userId
+                    System.out.println(" [CONFERENCE] " + conferenceAgent.userId
                         + " joined call with " + primaryAgent.userId);
                     callProducer.send(buildCallEvent(crtObjectId, callId, callLegId, campaignId,
                         originateTime, "CONFERENCE_JOINED", Instant.now(),
@@ -571,15 +460,14 @@ public class UnifiedSimulator implements CommandLineRunner {
                 }
             }
 
-            // ── STEP 8: HOLD (30%) ──────────────────────────────────────
+            // ── HOLD (30%) ──────────────────────────────────────
             // Agent places caller on hold to consult notes / transfer / escalate.
             // hold_time and customer_hold_time are tracked separately.
-            // TABLE: calls → HOLD_STARTED / HOLD_ENDED | user_disposition_history
             long totalHoldTimeMs = 0;
             if (ThreadLocalRandom.current().nextInt(100) < 30) {
                 long holdDurationMs = ThreadLocalRandom.current().nextLong(5000, 20000);
                 totalHoldTimeMs = holdDurationMs;
-                System.out.println("⏸️  [HOLD] " + primaryAgent.userId
+                System.out.println(" [HOLD] " + primaryAgent.userId
                     + " placed caller on hold (" + holdDurationMs + "ms).");
 
                 callProducer.send(buildCallEvent(crtObjectId, callId, callLegId, campaignId,
@@ -591,17 +479,16 @@ public class UnifiedSimulator implements CommandLineRunner {
                 callProducer.send(buildCallEvent(crtObjectId, callId, callLegId, campaignId,
                     originateTime, "HOLD_ENDED", Instant.now(),
                     null, null, null, null, null, null, null, null));
-                System.out.println("▶️  [RESUMED] " + primaryAgent.userId + " resumed call.");
+                System.out.println(" [RESUMED] " + primaryAgent.userId + " resumed call.");
             }
 
             // Brief simulated conversation
             Thread.sleep(5000);
 
-            // ── STEP 9: TRANSFER (20%) ───────────────────────────────────
+            // ──  TRANSFER (20%) ───────────────────────────────────
             // Agent transfers caller to the Feedback IVR (campaign id = 4).
             // This creates a NEW call_id but keeps the same crt_object_id.
             // callType changes to transferred.to.campaign.detail.
-            // TABLE: calls → TRANSFERRED | user_disposition_history → transfer_time, transfer_to
             boolean isTransferred = ThreadLocalRandom.current().nextInt(100) < 20;
             Instant transferTime  = null;
             if (isTransferred) {
@@ -609,7 +496,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 String transferCallId  = "call-" + UUID.randomUUID().toString().substring(0, 8);
                 String transferLegId   = "leg-"  + UUID.randomUUID().toString().substring(0, 8);
 
-                System.out.println("🔀 [TRANSFER] " + primaryAgent.userId
+                System.out.println("[TRANSFER] " + primaryAgent.userId
                     + " transferring to Feedback IVR (campaign 4).");
 
                 // New call record under the same crt_object_id, new call_id
@@ -620,9 +507,8 @@ public class UnifiedSimulator implements CommandLineRunner {
                 callProducer.send(transferEvent);
             }
 
-            // ── STEP 10: DISCONNECTED ────────────────────────────────────
+            // ── DISCONNECTED ────────────────────────────────────
             // Call ends. All timing fields are now final.
-            // TABLE: calls → DISCONNECTED | cm_cdr_history (final record)
             Instant disconnectedTime = Instant.now();
             long talkTimeMs          = talkTimeSec * 1000L;
             boolean callerHungUp     = ThreadLocalRandom.current().nextInt(100) < 60;
@@ -635,10 +521,7 @@ public class UnifiedSimulator implements CommandLineRunner {
                 originateTime, "DISCONNECTED", disconnectedTime, disconnectedTime,
                 "CALL_HANGUP", "SUCCESS", false, talkTimeMs,
                 ivrDurationMs, ringDurationMs, "normal.clearing"));
-            // Note: holdTime is set separately via setHoldTime in the full builder;
-            // the helper above covers the most common fields. Set holdTime explicitly:
-            // (handled below via the dedicated disconnect builder — see NOTE in buildCallEvent)
-
+   
             // cm_cdr_history: finalise the leg record
             cdrLeg.setEndTime(disconnectedTime);
             cdrLeg.setRingTime(ringDurationMs);
@@ -649,10 +532,9 @@ public class UnifiedSimulator implements CommandLineRunner {
             cdrLeg.setInternalHangupReason(null);
             cdrProducer.send(cdrLeg);
 
-            // ── STEP 11: WRAP-UP & DISPOSITION — PRIMARY AGENT ──────────
+            // ── WRAP-UP & DISPOSITION — PRIMARY AGENT ──────────
             // Agent is NOT returned to the pool until wrap-up is complete.
             // They enter the call outcome and save it (or the CRM auto-saves).
-            // TABLE: user_disposition_history
             long wrapTimeMs = ThreadLocalRandom.current().nextLong(15000, 60000);
             System.out.println("📝 [WRAP UP] " + primaryAgent.userId
                 + " entering disposition (" + wrapTimeMs / 1000 + "s)...");
@@ -670,14 +552,12 @@ public class UnifiedSimulator implements CommandLineRunner {
                 dispClass, dispCode,
                 "normal"   // 1-on-1 call from primary agent's perspective
             );
-            System.out.println("✍️  [DISPOSED] " + primaryAgent.userId
+            System.out.println("  [DISPOSED] " + primaryAgent.userId
                 + " → " + dispClass + ": " + dispCode);
 
-            // ── STEP 12: WRAP-UP & DISPOSITION — CONFERENCE AGENT ────────
+            // ──  WRAP-UP & DISPOSITION — CONFERENCE AGENT ────────
             // Conference agent gets its OWN disposition row with associationType=conference.
-            // IMPORTANT: both agents' talk_time records overlap in time.
-            //            Do NOT sum them when computing call-level metrics.
-            if (conferenceAgent != null) {
+                       if (conferenceAgent != null) {
                 long confWrapMs  = ThreadLocalRandom.current().nextLong(10000, 30000);
                 Thread.sleep(confWrapMs);
 
@@ -693,23 +573,23 @@ public class UnifiedSimulator implements CommandLineRunner {
                     confClass, confCode,
                     "conference"  // marks overlapping talk time — do not aggregate
                 );
-                System.out.println("✍️  [CONF DISPOSED] " + conferenceAgent.userId
+                System.out.println(" [CONF DISPOSED] " + conferenceAgent.userId
                     + " → " + confClass + ": " + confCode);
 
                 // Return conference agent to the pool if still on shift
                 if (activeAgents.contains(conferenceAgent.userId)) {
                     availableAgents.put(conferenceAgent);
-                    System.out.println("♻️  [CONF READY] " + conferenceAgent.userId + " back in pool.");
+                    System.out.println("  [CONF READY] " + conferenceAgent.userId + " back in pool.");
                 }
             }
 
-            // ── STEP 13: PRIMARY AGENT BACK IN POOL ──────────────────────
+            // ──  PRIMARY AGENT BACK IN POOL ──────────────────────
             // Only re-queue if: still on shift AND not in an erroneous break
             AtomicBoolean onBreak = erroneousBreakFlags.get(primaryAgent.userId);
             if (activeAgents.contains(primaryAgent.userId)
                     && (onBreak == null || !onBreak.get())) {
                 availableAgents.put(primaryAgent);
-                System.out.println("♻️  [READY] " + primaryAgent.userId + " back in pool.");
+                System.out.println("  [READY] " + primaryAgent.userId + " back in pool.");
             }
 
         } catch (InterruptedException e) {
@@ -717,9 +597,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         }
     }
 
-    // ====================================================================
     // HELPER — Build a DispositionEvent for user_disposition_history
-    // ====================================================================
     private void sendDispositionEvent(
             String callLegId,     String callId,        Integer campaignId,
             AgentContext agent,
@@ -768,11 +646,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         dispositionProducer.send(d);
     }
 
-    // ====================================================================
     // HELPER — Build a CallEvent with the most common fields populated.
-    // Uses null-safety: null arguments are simply not set on the event.
-    // For the DISCONNECTED event, set holdTime explicitly after calling this.
-    // ====================================================================
     private CallEvent buildCallEvent(
             String  crtObjectId,   String  callId,         String  callLegId,
             Integer campaignId,    Instant originateTime,  String  eventType,
@@ -802,9 +676,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         return e;
     }
 
-    // ====================================================================
-    // HELPER — Base CallEvent (minimal, no timing fields)
-    // ====================================================================
+    // HELPER — Base CallEvent 
     private CallEvent createBaseCallEvent(
             String crt, String callId, String legId, Integer campaign, Instant originate) {
         CallEvent e = new CallEvent();
@@ -818,9 +690,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         return e;
     }
 
-    // ====================================================================
     // HELPER — Fire a user_sessions event
-    // ====================================================================
     private void sendSessionEvent(String user, String sessionId, String type, String reason) {
         UserSessionEvent e = new UserSessionEvent();
         e.setSessionId(sessionId);
@@ -831,9 +701,7 @@ public class UnifiedSimulator implements CommandLineRunner {
         sessionProducer.send(e);
     }
 
-    // ====================================================================
     // HELPER — Pick a random element from a list
-    // ====================================================================
     private <T> T pickRandom(List<T> list) {
         return list.get(ThreadLocalRandom.current().nextInt(list.size()));
     }

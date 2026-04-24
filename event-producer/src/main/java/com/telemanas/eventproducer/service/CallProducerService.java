@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.telemanas.eventproducer.model.CallEvent;
 
+// Service responsible for sending live call events to Kafka.
 @Service
 public class CallProducerService {
 

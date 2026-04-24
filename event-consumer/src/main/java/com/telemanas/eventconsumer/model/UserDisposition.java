@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+// Format saved to database
 @Entity
 @Table(name = "user_disposition_history")
 public class UserDisposition {
@@ -81,8 +82,7 @@ public class UserDisposition {
     @Column(name = "hold_time")
     private Long holdTime;
 
-    // --- GETTERS AND SETTERS ---
-
+    // getters and setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

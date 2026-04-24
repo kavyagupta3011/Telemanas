@@ -5,11 +5,8 @@ com/telemanas/eventconsumer/consumer/UserSessionConsumer.class
 com/telemanas/eventconsumer/model/UserSession.class
 com/telemanas/eventconsumer/repository/AgentActivityRepository.class
 com/telemanas/eventconsumer/model/AutoCallInput.class
-com/telemanas/eventconsumer/model/HotCallEvent.class
 com/telemanas/eventconsumer/model/UserSessionInput.class
-com/telemanas/eventconsumer/repository/CallEventHotRepository.class
 com/telemanas/eventconsumer/model/AgentActivityInput.class
-com/telemanas/eventconsumer/service/HotTableCleanupService.class
 com/telemanas/eventconsumer/consumer/AutoCallConsumer.class
 com/telemanas/eventconsumer/model/AutoCall.class
 com/telemanas/eventconsumer/repository/AutoCallRepository.class

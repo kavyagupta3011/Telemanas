@@ -7,6 +7,7 @@ import com.telemanas.eventconsumer.model.UserSession;
 import com.telemanas.eventconsumer.model.UserSessionInput;
 import com.telemanas.eventconsumer.repository.UserSessionRepository;
 
+// Service responsible for consuming user session events from Kafka and processing them (saving/updating user session records in the database).
 @Service
 public class UserSessionConsumer {
 
@@ -16,11 +17,13 @@ public class UserSessionConsumer {
         this.sessionRepository = sessionRepository;
     }
 
+    // Kafka listener to topic "user-session-events" with group ID "telemanas-session-group". It uses a specific container factory for deserialization.
     @KafkaListener(
         topics = "user-session-events", 
         groupId = "telemanas-session-group",
         containerFactory = "userSessionKafkaListenerContainerFactory"
     )
+
     public void consumeSessionEvent(UserSessionInput input) {
         
         if (input.getSessionId() == null) {
@@ -37,7 +40,7 @@ public class UserSessionConsumer {
                     return newSession;
                 });
 
-        // Map the timestamp to the correct database column based on the event type
+        // Mapping 
         if ("LOGIN".equalsIgnoreCase(input.getEventType())) {
             session.setLoginTime(input.getTimestamp());
         } else if ("LOGOUT".equalsIgnoreCase(input.getEventType())) {

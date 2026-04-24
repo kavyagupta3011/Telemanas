@@ -4,6 +4,8 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+// Format received from Kafka
 public class CallRecordInput {
 
     private String eventType;
@@ -66,7 +68,7 @@ public class CallRecordInput {
     @JsonProperty("hold_time")
     private Long holdTime;
 
-    // --- GETTERS AND SETTERS ---
+    // getters and setters
     public String getEventType() { return eventType; }
     public void setEventType(String eventType) { this.eventType = eventType; }
     

@@ -3,6 +3,7 @@ import java.time.Instant;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+// Represents a user disposition event in the system, containing detailed information about the call and user interaction.
 public class UserDisposition {
 
     private String eventType;
@@ -77,8 +78,7 @@ public class UserDisposition {
     @JsonProperty("hold_time")
     private Long holdTime;
 
-    // --- GETTERS AND SETTERS ---
-
+    // getters and setters 
     public String getEventType() { return eventType; }
     public void setEventType(String eventType) { this.eventType = eventType; }
 

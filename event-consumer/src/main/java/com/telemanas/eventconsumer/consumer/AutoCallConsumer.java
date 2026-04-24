@@ -7,6 +7,7 @@ import com.telemanas.eventconsumer.model.AutoCall;
 import com.telemanas.eventconsumer.model.AutoCallInput;
 import com.telemanas.eventconsumer.repository.AutoCallRepository;
 
+// Service responsible for consuming auto call events from Kafka and processing them (saving to the database).
 @Service
 public class AutoCallConsumer {
 
@@ -16,11 +17,13 @@ public class AutoCallConsumer {
         this.autoCallRepository = autoCallRepository;
     }
 
+    // Kafka listener to topic "agent-autocall-events" with group ID "telemanas-autocall-group". It uses a specific container factory for deserialization.
     @KafkaListener(
         topics = "agent-autocall-events", 
         groupId = "telemanas-autocall-group",
         containerFactory = "autoCallKafkaListenerContainerFactory"
     )
+
     public void consumeAutoCallEvent(AutoCallInput input) {
 
         if (input.getId() == null) {
@@ -36,7 +39,7 @@ public class AutoCallConsumer {
                     return newAutoCall;
                 });
 
-        // Direct 1-to-1 mapping of fields
+        // mapping of fields
         autoCall.setSessionId(input.getSessionId());
         autoCall.setAutoCallOnStartTime(input.getAutoCallOnStartTime());
         autoCall.setAutoCallOnEndTime(input.getAutoCallOnEndTime());

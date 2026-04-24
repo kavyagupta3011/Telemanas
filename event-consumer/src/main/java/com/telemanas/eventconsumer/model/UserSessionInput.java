@@ -2,20 +2,21 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+// Format received from Kafka
 public class UserSessionInput {
 
     private String sessionId;
     private String userId;
-    private String reason;      // only for LOGOUT
-    private String eventType;   // LOGIN or LOGOUT
+    private String reason;      
+    private String eventType;   
     private Instant timestamp;
    
+    // getters and setters 
     public String getSessionId() { return sessionId; }
     public String getUserId() { return userId; }
     public String getEventType() { return eventType; }
     public Instant getTimestamp() { return timestamp; }
     public String getReason() { return reason; }
-
 
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
     public void setUserId(String userId) { this.userId = userId; }
