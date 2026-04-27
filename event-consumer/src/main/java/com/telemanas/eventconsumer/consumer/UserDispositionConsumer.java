@@ -31,7 +31,6 @@ public class UserDispositionConsumer {
             return;
         }
 
-        // Fetch existing record OR create new 
         UserDisposition record = userDispositionRepository.findById(input.getId())
                 .orElseGet(() -> {
                     UserDisposition newRecord = new UserDisposition();
@@ -39,31 +38,73 @@ public class UserDispositionConsumer {
                     return newRecord;
                 });
 
-        // Field Mapping
-        record.setCallId(input.getCallId());
-        record.setCallLegId(input.getCallLegId());
-        record.setDateAdded(input.getDateAdded());
-        record.setUserDispositionTime(input.getUserDispositionTime());
-        record.setTransferTime(input.getTransferTime());
-        record.setTransferTo(input.getTransferTo());
-        record.setDispositionClass(input.getDispositionClass());
-        record.setDispositionCode(input.getDispositionCode());
-        record.setUserId(input.getUserId());
-        record.setSessionId(input.getSessionId());
-        record.setWrapTime(input.getWrapTime());
-        record.setTalkTime(input.getTalkTime());
-        record.setWorking(input.getWorking());
-        record.setDisposedByCrm(input.getDisposedByCrm());
-        record.setAutoCallOnTime(input.getAutoCallOnTime());
-        record.setAutoCallOffTime(input.getAutoCallOffTime());
-        record.setUserConnectedTime(input.getUserConnectedTime());
-        record.setUserDisconnectedTime(input.getUserDisconnectedTime());
-        record.setCampaignId(input.getCampaignId());
-        record.setAssociationType(input.getAssociationType());
-        record.setCustomerHoldTime(input.getCustomerHoldTime());
-        record.setHoldTime(input.getHoldTime());
+    
+        if (input.getCallId() != null)
+            record.setCallId(input.getCallId());
 
-        // Save (insert or update)
+        if (input.getCallLegId() != null)
+            record.setCallLegId(input.getCallLegId());
+
+        if (input.getDateAdded() != null)
+            record.setDateAdded(input.getDateAdded());
+
+        if (input.getUserDispositionTime() != null)
+            record.setUserDispositionTime(input.getUserDispositionTime());
+
+        if (input.getTransferTime() != null)
+            record.setTransferTime(input.getTransferTime());
+
+        if (input.getTransferTo() != null)
+            record.setTransferTo(input.getTransferTo());
+
+        if (input.getDispositionClass() != null)
+            record.setDispositionClass(input.getDispositionClass());
+
+        if (input.getDispositionCode() != null)
+            record.setDispositionCode(input.getDispositionCode());
+
+        if (input.getUserId() != null)
+            record.setUserId(input.getUserId());
+
+        if (input.getSessionId() != null)
+            record.setSessionId(input.getSessionId());
+
+        if (input.getWrapTime() != null)
+            record.setWrapTime(input.getWrapTime());
+
+        if (input.getTalkTime() != null)
+            record.setTalkTime(input.getTalkTime());
+
+        if (input.getWorking() != null)
+            record.setWorking(input.getWorking());
+
+        if (input.getDisposedByCrm() != null)
+            record.setDisposedByCrm(input.getDisposedByCrm());
+
+        if (input.getAutoCallOnTime() != null)
+            record.setAutoCallOnTime(input.getAutoCallOnTime());
+
+        if (input.getAutoCallOffTime() != null)
+            record.setAutoCallOffTime(input.getAutoCallOffTime());
+
+        if (input.getUserConnectedTime() != null)
+            record.setUserConnectedTime(input.getUserConnectedTime());
+
+        if (input.getUserDisconnectedTime() != null)
+            record.setUserDisconnectedTime(input.getUserDisconnectedTime());
+
+        if (input.getCampaignId() != null)
+            record.setCampaignId(input.getCampaignId());
+
+        if (input.getAssociationType() != null)
+            record.setAssociationType(input.getAssociationType());
+
+        if (input.getCustomerHoldTime() != null)
+            record.setCustomerHoldTime(input.getCustomerHoldTime());
+
+        if (input.getHoldTime() != null)
+            record.setHoldTime(input.getHoldTime());
+
         userDispositionRepository.save(record);
 
         System.out.println("Processed UserDisposition event for ID: " + input.getId());

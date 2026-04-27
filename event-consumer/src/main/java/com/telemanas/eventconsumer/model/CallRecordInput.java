@@ -2,70 +2,30 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 
 // Format received from Kafka
 public class CallRecordInput {
 
     private String eventType;
     private Instant eventTimestamp;
-
-    @JsonProperty("crt_object_id")
     private String crtObjectId;
-    
-    @JsonProperty("call_id")
     private String callId;
-    
-    @JsonProperty("call_leg_id")
     private String callLegId;
-    
-    @JsonProperty("campaign_id")
     private Integer campaignId;
-
-    @JsonProperty("is_outbound")
     private Boolean isOutbound;
-    
-    @JsonProperty("call_type")
     private String callType;
-
-    @JsonProperty("system_disposition")
     private String systemDisposition;
-
-    @JsonProperty("date_added")
     private Integer dateAdded;
-    
-    @JsonProperty("call_result")
     private String callResult;
-
-    @JsonProperty("hangup_cause")
     private String hangupCause;
-    
-    @JsonProperty("hangup_cause_description")
     private String hangupCauseDescription;
-    
-    @JsonProperty("hangup_on_hold")
     private Boolean hangupOnHold;
-
-    @JsonProperty("call_originate_time")
     private Instant callOriginateTime;
-    
-    @JsonProperty("call_end_time")
     private Instant callEndTime;
-
-    @JsonProperty("setup_time")
     private Long setupTime;
-    
-    @JsonProperty("ringing_time")
     private Long ringingTime;
-
-    @JsonProperty("ivr_time")
     private Long ivrTime;
-    
-    @JsonProperty("talk_time")
     private Long talkTime;
-
-    @JsonProperty("hold_time")
     private Long holdTime;
 
     // getters and setters

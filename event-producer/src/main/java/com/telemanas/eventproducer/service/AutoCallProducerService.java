@@ -15,10 +15,9 @@ public class AutoCallProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // key = session id
     public void send(AutoCallEvent event) {
-        kafkaTemplate.send("agent-autocall-events",
-                event.getSessionId(),
-                event);
+        kafkaTemplate.send("agent-autocall-events", event.getSessionId(), event);
     }
 
    

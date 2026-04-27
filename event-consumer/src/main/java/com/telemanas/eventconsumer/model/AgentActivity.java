@@ -2,6 +2,7 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -17,7 +18,9 @@ public class AgentActivity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String campaignSessionId;
+    @Column(unique = true, nullable = false)             
+    private String sessionId;
+
     private Integer campaignId;
 
     private Instant readyStartTime;
@@ -31,8 +34,8 @@ public class AgentActivity {
     // Getters and Setters
     public Long getId() { return id; }
 
-    public String getCampaignSessionId() { return campaignSessionId; }
-    public void setCampaignSessionId(String campaignSessionId) { this.campaignSessionId = campaignSessionId; }
+    public String getSessionId() { return sessionId; }
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 
     public Integer getCampaignId() { return campaignId; }
     public void setCampaignId(Integer campaignId) { this.campaignId = campaignId; }

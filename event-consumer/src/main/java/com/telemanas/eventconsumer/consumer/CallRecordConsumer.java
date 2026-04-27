@@ -30,32 +30,69 @@ public class CallRecordConsumer {
             return;
         }
 
-        // Find existing call by ID, or create a brand new one if it doesn't exist yet
-        CallRecord record = callRepository.findById(input.getCallId()).orElse(new CallRecord());
+        CallRecord record = callRepository.findById(input.getCallId())
+                .orElseGet(CallRecord::new);
 
-        // Mapping of the fields 
         record.setCallId(input.getCallId());
-        record.setCrtObjectId(input.getCrtObjectId());
-        record.setCallLegId(input.getCallLegId());
-        record.setCampaignId(input.getCampaignId());
-        record.setIsOutbound(input.getIsOutbound());
-        record.setCallType(input.getCallType());
-        record.setCurrentState(input.getEventType());
-        record.setSystemDisposition(input.getSystemDisposition());
-        record.setCallResult(input.getCallResult());
-        record.setCallOriginateTime(input.getCallOriginateTime());
 
-        // If this is a DISCONNECT event, apply the final metrics
-        if ("DISCONNECTED".equals(input.getEventType())) {
-            record.setCallEndTime(input.getCallEndTime());
-            record.setHangupCauseDescription(input.getHangupCauseDescription());
-            record.setHangupOnHold(input.getHangupOnHold());
+        if (input.getCrtObjectId() != null)
+            record.setCrtObjectId(input.getCrtObjectId());
+
+        if (input.getCallLegId() != null)
+            record.setCallLegId(input.getCallLegId());
+
+        if (input.getCampaignId() != null)
+            record.setCampaignId(input.getCampaignId());
+
+        if (input.getIsOutbound() != null)
+            record.setIsOutbound(input.getIsOutbound());
+
+        if (input.getCallType() != null)
+            record.setCallType(input.getCallType());
+
+        record.setCurrentState(input.getEventType());
+
+        if (input.getSystemDisposition() != null)
+            record.setSystemDisposition(input.getSystemDisposition());
+
+        if (input.getCallResult() != null)
+            record.setCallResult(input.getCallResult());
+
+        if (input.getCallOriginateTime() != null)
+            record.setCallOriginateTime(input.getCallOriginateTime());
+
+        // Incremental updates
+        if (input.getIvrTime() != null)
             record.setIvrTime(input.getIvrTime());
+
+        if (input.getRingingTime() != null)
             record.setRingingTime(input.getRingingTime());
+
+        if (input.getTalkTime() != null)
             record.setTalkTime(input.getTalkTime());
+
+        // FINAL STATE
+        if ("CALL_ENDED".equalsIgnoreCase(input.getEventType())) {
+
+            if (input.getCallEndTime() != null)
+                record.setCallEndTime(input.getCallEndTime());
+
+            if (input.getHangupCauseDescription() != null)
+                record.setHangupCauseDescription(input.getHangupCauseDescription());
+
+            if (input.getHangupOnHold() != null)
+                record.setHangupOnHold(input.getHangupOnHold());
+
+            if (input.getSetupTime() != null)
+                record.setSetupTime(input.getSetupTime());
+
+            if (input.getHoldTime() != null)
+                record.setHoldTime(input.getHoldTime());
         }
 
         callRepository.save(record);
-        System.out.println("Live Update: Call " + input.getCallId() + " moved to state -> " + input.getEventType());
+
+        System.out.println("Live Update: Call " + input.getCallId() +
+                " → " + input.getEventType());
     }
 }

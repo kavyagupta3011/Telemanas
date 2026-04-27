@@ -1,80 +1,33 @@
 package com.telemanas.eventconsumer.model;
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 // Format received from Kafka
 public class UserDispositionInput {
     private String eventType;
     private Instant eventTimestamp;
 
-    @JsonProperty("id")
     private String id;
-
-    @JsonProperty("call_id")
     private String callId;
-
-    @JsonProperty("call_leg_id")
     private String callLegId;
-
-    @JsonProperty("date_added")
     private Instant dateAdded;
-
-    @JsonProperty("user_disposition_time")
     private Instant userDispositionTime;
-
-    @JsonProperty("transfer_time")
     private Instant transferTime;
-
-    @JsonProperty("transfer_to")
     private String transferTo;
-
-    @JsonProperty("disposition_class")
     private String dispositionClass;
-
-    @JsonProperty("disposition_code")
     private String dispositionCode;
-
-    @JsonProperty("user_id")
     private String userId;
-
-    @JsonProperty("session_id")
     private String sessionId;
-
-    @JsonProperty("wrap_time")
     private Long wrapTime;
-
-    @JsonProperty("talk_time")
     private Long talkTime;
-
-    @JsonProperty("working")
     private Boolean working;
-
-    @JsonProperty("disposed_by_crm")
     private Boolean disposedByCrm;
-
-    @JsonProperty("auto_call_on_time")
     private Instant autoCallOnTime;
-
-    @JsonProperty("auto_call_off_time")
     private Instant autoCallOffTime;
-
-    @JsonProperty("user_connected_time")
     private Instant userConnectedTime;
-
-    @JsonProperty("user_disconnected_time")
     private Instant userDisconnectedTime;
-
-    @JsonProperty("campaign_id")
     private Integer campaignId;
-
-    @JsonProperty("association_type")
     private String associationType;
-
-    @JsonProperty("customer_hold_time")
     private Long customerHoldTime;
-
-    @JsonProperty("hold_time")
     private Long holdTime;
 
     // getters and setters

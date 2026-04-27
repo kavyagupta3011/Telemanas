@@ -15,9 +15,8 @@ public class AgentActivityProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // key = session id
     public void send(AgentActivityEvent event) {
-        kafkaTemplate.send("agent-activity-events",
-                event.getSessionId(),
-                event);
+        kafkaTemplate.send("agent-activity-events",event.getSessionId(),event);
     }
 }

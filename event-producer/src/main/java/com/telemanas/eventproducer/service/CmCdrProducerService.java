@@ -17,10 +17,6 @@ public class CmCdrProducerService {
 
     public void send(CmCdrEvent event) {
 
-        kafkaTemplate.send(
-                "cm-cdr-events",          // topic
-                event.getCallLegId(),    // key (VERY important)
-                event
-        );
+        kafkaTemplate.send( "cm-cdr-events", event.getCallLegId(),event);
     }
 }

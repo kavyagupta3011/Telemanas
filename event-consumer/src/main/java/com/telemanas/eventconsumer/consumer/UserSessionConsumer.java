@@ -25,13 +25,11 @@ public class UserSessionConsumer {
     )
 
     public void consumeSessionEvent(UserSessionInput input) {
-        
         if (input.getSessionId() == null) {
             System.err.println("Dropped event: Missing session ID.");
             return;
         }
 
-        // Fetch existing session (if logging out) or create a new one (if logging in)
         UserSession session = sessionRepository.findById(input.getSessionId())
                 .orElseGet(() -> {
                     UserSession newSession = new UserSession();
@@ -40,18 +38,29 @@ public class UserSessionConsumer {
                     return newSession;
                 });
 
-        // Mapping 
         if ("LOGIN".equalsIgnoreCase(input.getEventType())) {
-            session.setLoginTime(input.getTimestamp());
-        } else if ("LOGOUT".equalsIgnoreCase(input.getEventType())) {
-            session.setLogoutTime(input.getTimestamp());
-            session.setReason(input.getReason());
-        } else {
+            if (session.getLoginTime() == null) {
+                session.setLoginTime(input.getTimestamp());
+            }
+        }
+
+        else if ("LOGOUT".equalsIgnoreCase(input.getEventType())) {
+            if (input.getTimestamp() != null) {
+                session.setLogoutTime(input.getTimestamp());
+            }
+
+            if (input.getReason() != null) {
+                session.setReason(input.getReason());
+            }
+        }
+
+        else {
             System.err.println("Unknown event type: " + input.getEventType());
         }
 
-        // Save or update the record in Postgres
         sessionRepository.save(session);
-        System.out.println("Processed " + input.getEventType() + " for session: " + input.getSessionId());
+
+        System.out.println("Processed " + input.getEventType() +
+                " for session: " + input.getSessionId());
     }
 }

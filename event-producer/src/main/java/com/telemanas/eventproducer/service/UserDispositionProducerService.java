@@ -17,11 +17,6 @@ public class UserDispositionProducerService {
 
     public void send(UserDisposition event) {
 
-        // using id as key (important for partitioning)
-        kafkaTemplate.send(
-                "user-disposition-events",
-                event.getId(),
-                event
-        );
+        kafkaTemplate.send( "user-disposition-events", event.getId(), event);
     }
 }

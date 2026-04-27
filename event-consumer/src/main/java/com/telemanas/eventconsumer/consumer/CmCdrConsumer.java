@@ -26,9 +26,11 @@ public class CmCdrConsumer {
 
     public void consume(CmCdrInput input) {
 
-        if (input.getCallLegId() == null) return;
+        if (input.getCallLegId() == null) {
+            System.err.println("Dropped CDR event: Missing call_leg_id");
+            return;
+        }
 
-        //  Find existing CDR by call leg ID, or create a brand new one if it doesn't exist yet
         CmCdr record = repository.findById(input.getCallLegId())
                 .orElseGet(() -> {
                     CmCdr r = new CmCdr();
@@ -36,19 +38,39 @@ public class CmCdrConsumer {
                     return r;
                 });
 
-        // Mapping of fields 
-        record.setHangupCause(input.getHangupCause());
-        record.setHangupCauseCode(input.getHangupCauseCode());
-        record.setSetupTime(input.getSetupTime());
-        record.setRingTime(input.getRingTime());
-        record.setTalkTime(input.getTalkTime());
-        record.setStartTime(input.getStartTime());
-        record.setEndTime(input.getEndTime());
-        record.setVoiceResourceInitializationTime(input.getVoiceResourceInitializationTime());
-        record.setWhichSideHungup(input.getWhichSideHungup());
-        record.setInternalHangupReason(input.getInternalHangupReason());
 
-        // Save to DB 
+        if (input.getHangupCause() != null)
+            record.setHangupCause(input.getHangupCause());
+
+        if (input.getHangupCauseCode() != null)
+            record.setHangupCauseCode(input.getHangupCauseCode());
+
+        if (input.getSetupTime() != null)
+            record.setSetupTime(input.getSetupTime());
+
+        if (input.getRingTime() != null)
+            record.setRingTime(input.getRingTime());
+
+        if (input.getTalkTime() != null)
+            record.setTalkTime(input.getTalkTime());
+
+        if (input.getStartTime() != null)
+            record.setStartTime(input.getStartTime());
+
+        if (input.getEndTime() != null)
+            record.setEndTime(input.getEndTime());
+
+        if (input.getVoiceResourceInitializationTime() != null)
+            record.setVoiceResourceInitializationTime(input.getVoiceResourceInitializationTime());
+
+        if (input.getWhichSideHungup() != null)
+            record.setWhichSideHungup(input.getWhichSideHungup());
+
+        if (input.getInternalHangupReason() != null)
+            record.setInternalHangupReason(input.getInternalHangupReason());
+
         repository.save(record);
+
+        System.out.println("Processed CDR for call_leg_id: " + input.getCallLegId());
     }
 }

@@ -11,7 +11,7 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
      
   datasource:
-    url: jdbc:postgresql://localhost:5432/metricsdb
+    url: jdbc:postgresql://127.0.0.1:5433/metricsdb?options=-c%20TimeZone=Asia/Kolkata
     username: grafana
     password: grafana
     driver-class-name: org.postgresql.Driver

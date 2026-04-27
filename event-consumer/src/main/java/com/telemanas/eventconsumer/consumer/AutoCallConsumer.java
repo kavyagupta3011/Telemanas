@@ -23,34 +23,43 @@ public class AutoCallConsumer {
         groupId = "telemanas-autocall-group",
         containerFactory = "autoCallKafkaListenerContainerFactory"
     )
-
+    
     public void consumeAutoCallEvent(AutoCallInput input) {
 
-        if (input.getId() == null) {
-            System.err.println("Dropped event: Missing AutoCall ID.");
+        if (input.getSessionId() == null) {
+            System.err.println("Dropped event: Missing session ID.");
             return;
         }
 
-        // Fetch existing record by ID to update, or create a new one if it doesn't exist
-        AutoCall autoCall = autoCallRepository.findById(input.getId())
-                .orElseGet(() -> {
-                    AutoCall newAutoCall = new AutoCall();
-                    newAutoCall.setId(input.getId());
-                    return newAutoCall;
-                });
+        AutoCall autoCall = autoCallRepository
+        .findBySessionId(input.getSessionId())
+        .orElseGet(AutoCall::new);
 
-        // mapping of fields
         autoCall.setSessionId(input.getSessionId());
-        autoCall.setAutoCallOnStartTime(input.getAutoCallOnStartTime());
-        autoCall.setAutoCallOnEndTime(input.getAutoCallOnEndTime());
-        autoCall.setAutoCallOffEndTime(input.getAutoCallOffEndTime());
-        autoCall.setAutoCallStartReason(input.getAutoCallStartReason());
-        autoCall.setEndReason(input.getEndReason());
         autoCall.setCampaignId(input.getCampaignId());
 
-        // Save or update the record in Postgres
+        if (input.getAutoCallOnStartTime() != null) {
+            autoCall.setAutoCallOnStartTime(input.getAutoCallOnStartTime());
+        }
+
+        if (input.getAutoCallOnEndTime() != null) {
+            autoCall.setAutoCallOnEndTime(input.getAutoCallOnEndTime());
+        }
+
+        if (input.getAutoCallOffEndTime() != null) {
+            autoCall.setAutoCallOffEndTime(input.getAutoCallOffEndTime());
+        }
+
+        if (input.getAutoCallStartReason() != null) {
+            autoCall.setAutoCallStartReason(input.getAutoCallStartReason());
+        }
+
+        if (input.getEndReason() != null) {
+            autoCall.setEndReason(input.getEndReason());
+        }
+
         autoCallRepository.save(autoCall);
 
-        System.out.println("Processed AutoCall event for ID: " + input.getId());
+        System.out.println("Processed AutoCall event for session: " + input.getSessionId());
     }
 }

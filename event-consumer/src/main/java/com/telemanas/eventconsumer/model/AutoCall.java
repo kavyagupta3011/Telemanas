@@ -2,7 +2,10 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -12,7 +15,10 @@ import jakarta.persistence.Table;
 public class AutoCall {
 
     @Id
-    private String Id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(unique = true, nullable = false)             
     private String sessionId;
     private Instant autoCallOnStartTime;
     private Instant autoCallOnEndTime;
@@ -22,9 +28,8 @@ public class AutoCall {
     private Integer campaignId;
 
     // getters and setters 
-    public String getId() { return Id; }
-    public void setId(String Id) { this.Id = Id; }
-
+    public Long getId() { return id; }
+   
     public String getSessionId() { return sessionId; }
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
 

@@ -15,8 +15,9 @@ public class UserSessionProducerService {
         this.kafkaTemplate = kafkaTemplate;
     }
 
+    // key = session id
     public void send(UserSessionEvent event) {
-        kafkaTemplate.send("user-session-events", event.getUserId(), event);
+        kafkaTemplate.send("user-session-events", event.getSessionId(), event);
     }
 }
 

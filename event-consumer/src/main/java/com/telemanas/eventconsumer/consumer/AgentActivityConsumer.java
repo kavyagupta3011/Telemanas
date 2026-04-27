@@ -24,31 +24,38 @@ public class AgentActivityConsumer {
         containerFactory = "agentActivityKafkaListenerContainerFactory"
     )
 
-    public void consumeActivityEvent(AgentActivityInput input) {
+  public void consumeActivityEvent(AgentActivityInput input) {
 
-        AgentActivity activity;
+    AgentActivity activity = activityRepository
+        .findBySessionId(input.getSessionId())
+        .orElseGet(AgentActivity::new);
 
-        // If the input provides an ID, try to find the existing record to update it.
-        // Otherwise, create a new record.
-        if (input.getId() != null) {
-            activity = activityRepository.findById(input.getId())
-                    .orElseGet(AgentActivity::new);
-        } else {
-            activity = new AgentActivity();
-        }
+    activity.setSessionId(input.getSessionId());
+    activity.setCampaignId(input.getCampaignId());
 
-        // Map the fields from the input to the database entity
-        activity.setCampaignSessionId(input.getSessionId());
-        activity.setCampaignId(input.getCampaignId());
+    if (input.getReadyStartTime() != null) {
         activity.setReadyStartTime(input.getReadyStartTime());
-        activity.setReadyEndTime(input.getReadyEndTime());
-        activity.setBreakEndTime(input.getBreakEndTime());
-        activity.setBreakReason(input.getBreakReason());
-        activity.setAgentBreakReason(input.getAgentBreakReason());
-
-        // Save or update the record in the database
-        activityRepository.save(activity);
-
-        System.out.println("Processed " + input.getEventType() + " event for campaign session: " + input.getSessionId());
     }
+
+    if (input.getReadyEndTime() != null) {
+        activity.setReadyEndTime(input.getReadyEndTime());
+    }
+
+    if (input.getBreakEndTime() != null) {
+        activity.setBreakEndTime(input.getBreakEndTime());
+    }
+
+    if (input.getBreakReason() != null) {
+        activity.setBreakReason(input.getBreakReason());
+    }
+
+    if (input.getAgentBreakReason() != null) {
+        activity.setAgentBreakReason(input.getAgentBreakReason());
+    }
+
+    activityRepository.save(activity);
+
+    System.out.println("Processed " + input.getEventType() +
+            " event for session: " + input.getSessionId());
+}
 }

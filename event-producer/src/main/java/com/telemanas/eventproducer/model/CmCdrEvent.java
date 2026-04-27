@@ -2,42 +2,19 @@ package com.telemanas.eventproducer.model;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 // Represents a CM CDR event in the system, containing detailed information about the call and its termination.
 public class CmCdrEvent {
 
-    @JsonProperty("call_leg_id")
     private String callLegId;
-
-    @JsonProperty("hangup_cause")
     private String hangupCause;
-
-    @JsonProperty("hangup_cause_code")
     private Integer hangupCauseCode;
-
-    @JsonProperty("setup_time")
     private Long setupTime;
-
-    @JsonProperty("ring_time")
     private Long ringTime;
-
-    @JsonProperty("talk_time")
     private Long talkTime;
-
-    @JsonProperty("start_time")
     private Instant startTime;
-
-    @JsonProperty("end_time")
     private Instant endTime;
-
-    @JsonProperty("voice_resource_initialization_time")
     private Instant voiceResourceInitializationTime;
-
-    @JsonProperty("which_side_hungup")
     private String whichSideHungup;
-
-    @JsonProperty("internal_hangup_reason")
     private String internalHangupReason;
 
     // getters and setters
