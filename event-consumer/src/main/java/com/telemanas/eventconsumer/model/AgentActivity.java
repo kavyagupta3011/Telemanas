@@ -2,7 +2,6 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,10 +14,7 @@ import jakarta.persistence.Table;
 public class AgentActivity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false)             
+    private String id;
     private String sessionId;
 
     private Integer campaignId;
@@ -30,28 +26,68 @@ public class AgentActivity {
 
     private String breakReason;
     private String agentBreakReason;
-    
+
     // Getters and Setters
-    public Long getId() { return id; }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public String getSessionId() { return sessionId; }
-    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
+    public String getSessionId() {
+        return sessionId;
+    }
 
-    public Integer getCampaignId() { return campaignId; }
-    public void setCampaignId(Integer campaignId) { this.campaignId = campaignId; }
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-    public Instant getReadyStartTime() { return readyStartTime; }
-    public void setReadyStartTime(Instant readyStartTime) { this.readyStartTime = readyStartTime; }
+    public Integer getCampaignId() {
+        return campaignId;
+    }
 
-    public Instant getReadyEndTime() { return readyEndTime; }
-    public void setReadyEndTime(Instant readyEndTime) { this.readyEndTime = readyEndTime; }
+    public void setCampaignId(Integer campaignId) {
+        this.campaignId = campaignId;
+    }
 
-    public Instant getBreakEndTime() { return breakEndTime; }
-    public void setBreakEndTime(Instant breakEndTime) { this.breakEndTime = breakEndTime; }
+    public Instant getReadyStartTime() {
+        return readyStartTime;
+    }
 
-    public String getBreakReason() { return breakReason; }
-    public void setBreakReason(String breakReason) { this.breakReason = breakReason; }
+    public void setReadyStartTime(Instant readyStartTime) {
+        this.readyStartTime = readyStartTime;
+    }
 
-    public String getAgentBreakReason() { return agentBreakReason; }
-    public void setAgentBreakReason(String agentBreakReason) { this.agentBreakReason = agentBreakReason; }
+    public Instant getReadyEndTime() {
+        return readyEndTime;
+    }
+
+    public void setReadyEndTime(Instant readyEndTime) {
+        this.readyEndTime = readyEndTime;
+    }
+
+    public Instant getBreakEndTime() {
+        return breakEndTime;
+    }
+
+    public void setBreakEndTime(Instant breakEndTime) {
+        this.breakEndTime = breakEndTime;
+    }
+
+    public String getBreakReason() {
+        return breakReason;
+    }
+
+    public void setBreakReason(String breakReason) {
+        this.breakReason = breakReason;
+    }
+
+    public String getAgentBreakReason() {
+        return agentBreakReason;
+    }
+
+    public void setAgentBreakReason(String agentBreakReason) {
+        this.agentBreakReason = agentBreakReason;
+    }
 }

@@ -7,6 +7,7 @@ import com.telemanas.eventconsumer.model.AutoCall;
 import com.telemanas.eventconsumer.model.AutoCallInput;
 import com.telemanas.eventconsumer.repository.AutoCallRepository;
 
+import java.util.UUID;
 // Service responsible for consuming auto call events from Kafka and processing them (saving to the database).
 @Service
 public class AutoCallConsumer {
@@ -35,6 +36,7 @@ public class AutoCallConsumer {
         .findBySessionId(input.getSessionId())
         .orElseGet(AutoCall::new);
 
+        autoCall.setId(UUID.randomUUID().toString());
         autoCall.setSessionId(input.getSessionId());
         autoCall.setCampaignId(input.getCampaignId());
 

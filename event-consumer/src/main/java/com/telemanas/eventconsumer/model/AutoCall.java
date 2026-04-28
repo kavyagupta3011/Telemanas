@@ -2,7 +2,6 @@ package com.telemanas.eventconsumer.model;
 
 import java.time.Instant;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,10 +14,7 @@ import jakarta.persistence.Table;
 public class AutoCall {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true, nullable = false)             
+    private String id;
     private String sessionId;
     private Instant autoCallOnStartTime;
     private Instant autoCallOnEndTime;
@@ -27,27 +23,67 @@ public class AutoCall {
     private String endReason;
     private Integer campaignId;
 
-    // getters and setters 
-    public Long getId() { return id; }
-   
-    public String getSessionId() { return sessionId; }
-    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
+    // getters and setters
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
 
-    public Instant getAutoCallOnStartTime() { return autoCallOnStartTime; }
-    public void setAutoCallOnStartTime(Instant autoCallOnStartTime) { this.autoCallOnStartTime = autoCallOnStartTime; }
+    public String getSessionId() {
+        return sessionId;
+    }
 
-    public Instant getAutoCallOnEndTime() { return autoCallOnEndTime; }
-    public void setAutoCallOnEndTime(Instant autoCallOnEndTime) { this.autoCallOnEndTime = autoCallOnEndTime; }
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
 
-    public Instant getAutoCallOffEndTime() { return autoCallOffEndTime; }
-    public void setAutoCallOffEndTime(Instant autoCallOffEndTime) { this.autoCallOffEndTime = autoCallOffEndTime; }
+    public Instant getAutoCallOnStartTime() {
+        return autoCallOnStartTime;
+    }
 
-    public String getAutoCallStartReason() { return autoCallStartReason; }
-    public void setAutoCallStartReason(String autoCallStartReason) { this.autoCallStartReason = autoCallStartReason; }
+    public void setAutoCallOnStartTime(Instant autoCallOnStartTime) {
+        this.autoCallOnStartTime = autoCallOnStartTime;
+    }
 
-    public String getEndReason() { return endReason; }
-    public void setEndReason(String endReason) { this.endReason = endReason; }
+    public Instant getAutoCallOnEndTime() {
+        return autoCallOnEndTime;
+    }
 
-    public Integer getCampaignId() { return campaignId; }
-    public void setCampaignId(Integer campaignId) { this.campaignId = campaignId; }
+    public void setAutoCallOnEndTime(Instant autoCallOnEndTime) {
+        this.autoCallOnEndTime = autoCallOnEndTime;
+    }
+
+    public Instant getAutoCallOffEndTime() {
+        return autoCallOffEndTime;
+    }
+
+    public void setAutoCallOffEndTime(Instant autoCallOffEndTime) {
+        this.autoCallOffEndTime = autoCallOffEndTime;
+    }
+
+    public String getAutoCallStartReason() {
+        return autoCallStartReason;
+    }
+
+    public void setAutoCallStartReason(String autoCallStartReason) {
+        this.autoCallStartReason = autoCallStartReason;
+    }
+
+    public String getEndReason() {
+        return endReason;
+    }
+
+    public void setEndReason(String endReason) {
+        this.endReason = endReason;
+    }
+
+    public Integer getCampaignId() {
+        return campaignId;
+    }
+
+    public void setCampaignId(Integer campaignId) {
+        this.campaignId = campaignId;
+    }
 }

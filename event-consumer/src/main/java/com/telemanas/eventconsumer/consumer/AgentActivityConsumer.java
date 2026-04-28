@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.telemanas.eventconsumer.model.AgentActivity;
 import com.telemanas.eventconsumer.model.AgentActivityInput;
 import com.telemanas.eventconsumer.repository.AgentActivityRepository;
+import java.util.UUID;
 
 // Service responsible for consuming agent activity events from Kafka and processing them ( saving to the database).
 @Service
@@ -30,6 +31,7 @@ public class AgentActivityConsumer {
         .findBySessionId(input.getSessionId())
         .orElseGet(AgentActivity::new);
 
+    activity.setId(UUID.randomUUID().toString());
     activity.setSessionId(input.getSessionId());
     activity.setCampaignId(input.getCampaignId());
 

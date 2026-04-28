@@ -5,7 +5,7 @@ import java.time.Instant;
 // Format recieved from Kafka
 public class AgentActivityInput {
 
-    private Long id;
+    private String id;
 
     private String sessionId;
     private Integer campaignId;
@@ -22,7 +22,7 @@ public class AgentActivityInput {
     private Instant createdAt;
 
     // Getters and Setters
-    public Long getId() { return id; }
+    public String getId() { return id; }
 
     public String getSessionId() { return sessionId; }
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
