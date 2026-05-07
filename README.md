@@ -2,7 +2,7 @@
 
 ## Overview
 A near real-time monitoring and analytics system for tele-mental health operations.  
-Processes high-volume call center events and provides real-time visibility into system performance.
+Processes high-volume call center events and provides real-time visibility into performance.
 
 ## Architecture
 External APIs / Simulator → Producer Service → Kafka → Consumer Service → PostgreSQL → Grafana
@@ -12,7 +12,7 @@ External APIs / Simulator → Producer Service → Kafka → Consumer Service �
 - Apache Kafka
 - PostgreSQL
 - Grafana
-- Docker, Docker Compose
+- Docker
 
 ## Key Features
 - Event-driven architecture
@@ -21,15 +21,8 @@ External APIs / Simulator → Producer Service → Kafka → Consumer Service �
 - Persistent storage using PostgreSQL
 - Grafana dashboards for monitoring
 
-## Kafka Topics
-- user-session-events
-- agent-activity-events
-- agent-autocall-events
-- live-call-events
-- cm-cdr-events
-- user-disposition-events
+## Kafka Topics and core event flows
 
-## Core Event Flows
 | Domain            | Topic                   | Key        | Table                    |
 |------------------|------------------------|------------|--------------------------|
 | User Session     | user-session-events     | sessionId  | user_sessions            |
@@ -49,7 +42,7 @@ cd Telemanas
 
 ### 2. Start Infrastructure
 ```bash
-cd telemanas_docker
+cd telemanas
 docker compose up -d
 ```
 
@@ -85,10 +78,3 @@ mvn spring-boot:run
 
 ## Notes
 - Simulator runs by when enabled in application.yaml of event producer 
-- Kafka uses key-based partitioning to maintain ordering
-
-## Future Improvements
-- Multi-broker Kafka cluster
-- Horizontal scaling of consumers
-- Database indexing and read replicas
-- Enhanced Grafana dashboards
